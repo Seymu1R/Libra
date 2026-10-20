@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mock_spain_la_liga_0",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2030-01-02T00:00:00Z",
+    "home_team": "Real Madrid",
+    "away_team": "Barcelona"
+  },
+  {
+    "id": "mock_spain_la_liga_1",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2030-01-02T22:00:00Z",
+    "home_team": "Atlético Madrid",
+    "away_team": "Sevilla"
+  },
+  {
+    "id": "mock_spain_la_liga_2",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2030-01-04T05:00:00Z",
+    "home_team": "Real Sociedad",
+    "away_team": "Villarreal"
+  },
+  {
+    "id": "mock_spain_la_liga_3",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2030-01-05T04:00:00Z",
+    "home_team": "Real Betis",
+    "away_team": "Athletic Bilbao"
+  },
+  {
+    "id": "mock_spain_la_liga_90",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2029-12-31T22:00:00Z",
+    "home_team": "Barcelona",
+    "away_team": "Real Madrid"
+  },
+  {
+    "id": "mock_spain_la_liga_91",
+    "sport_key": "soccer_spain_la_liga",
+    "sport_title": "soccer_spain_la_liga",
+    "commence_time": "2030-01-10T00:00:00Z",
+    "home_team": "Sevilla",
+    "away_team": "Atlético Madrid"
+  }
+]

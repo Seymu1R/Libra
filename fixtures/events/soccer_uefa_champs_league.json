@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mock_uefa_champs_league_0",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2030-01-01T23:00:00Z",
+    "home_team": "Real Madrid",
+    "away_team": "Manchester City"
+  },
+  {
+    "id": "mock_uefa_champs_league_1",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2030-01-03T03:00:00Z",
+    "home_team": "Bayern Munich",
+    "away_team": "Qarabağ FK"
+  },
+  {
+    "id": "mock_uefa_champs_league_2",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2030-01-04T00:00:00Z",
+    "home_team": "Inter Milan",
+    "away_team": "Benfica"
+  },
+  {
+    "id": "mock_uefa_champs_league_3",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2030-01-05T04:00:00Z",
+    "home_team": "Porto",
+    "away_team": "Celtic"
+  },
+  {
+    "id": "mock_uefa_champs_league_90",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2029-12-31T22:00:00Z",
+    "home_team": "Manchester City",
+    "away_team": "Real Madrid"
+  },
+  {
+    "id": "mock_uefa_champs_league_91",
+    "sport_key": "soccer_uefa_champs_league",
+    "sport_title": "soccer_uefa_champs_league",
+    "commence_time": "2030-01-10T00:00:00Z",
+    "home_team": "Qarabağ FK",
+    "away_team": "Bayern Munich"
+  }
+]

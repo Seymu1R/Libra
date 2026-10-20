@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mock_uefa_europa_conference_league_0",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2030-01-01T21:00:00Z",
+    "home_team": "Chelsea",
+    "away_team": "Fiorentina"
+  },
+  {
+    "id": "mock_uefa_europa_conference_league_1",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2030-01-03T00:00:00Z",
+    "home_team": "Real Betis",
+    "away_team": "Sabah FK"
+  },
+  {
+    "id": "mock_uefa_europa_conference_league_2",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2030-01-04T03:00:00Z",
+    "home_team": "Legia Warsaw",
+    "away_team": "Copenhagen"
+  },
+  {
+    "id": "mock_uefa_europa_conference_league_3",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2030-01-05T03:00:00Z",
+    "home_team": "Hearts",
+    "away_team": "Slavia Prague"
+  },
+  {
+    "id": "mock_uefa_europa_conference_league_90",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2029-12-31T22:00:00Z",
+    "home_team": "Fiorentina",
+    "away_team": "Chelsea"
+  },
+  {
+    "id": "mock_uefa_europa_conference_league_91",
+    "sport_key": "soccer_uefa_europa_conference_league",
+    "sport_title": "soccer_uefa_europa_conference_league",
+    "commence_time": "2030-01-10T00:00:00Z",
+    "home_team": "Sabah FK",
+    "away_team": "Real Betis"
+  }
+]

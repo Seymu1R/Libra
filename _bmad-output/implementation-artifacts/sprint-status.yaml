@@ -1,0 +1,46 @@
+# generated: 2026-10-20
+# project: Tərəzi
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+#
+# Epic status: backlog | in-progress | done
+# Story status: backlog | ready-for-dev | in-progress | review | done
+# Each story = story file here + spec file in _bmad-output/specs/
+
+generated: 2026-10-20
+last_updated: 2026-10-20
+# 2026-10-20: Epics 0–5 implemented in one pass (owner approved plan). 1-1 live verification blocked on ODDS_API_KEY.
+project: Tərəzi
+
+development_status:
+  epic-0: in-progress
+  0-1-project-scaffold: review
+
+  epic-1: in-progress
+  1-1-api-docs-and-sport-key-verification: in-progress  # docs verified; live /v4/sports run pending API key (npm run verify:sports)
+  1-2-odds-api-schemas-and-quota-parser: review
+  1-3-odds-client-real-and-mock: review
+
+  epic-2: in-progress
+  2-1-prisma-schema: review
+  2-2-sync-service: review
+  2-3-sync-and-status-routes: review
+
+  epic-3: in-progress
+  3-1-fair-probabilities-median-disagreement: review
+  3-2-markets-1x2-ou25-double-chance: review
+  3-3-best-odds-and-analysis-service: review
+
+  epic-4: in-progress
+  4-1-template-builder: review
+  4-2-templates-service-and-route: review
+
+  epic-5: in-progress
+  5-1-layout-and-header: review
+  5-2-matches-view: review
+  5-3-templates-view-and-custom-builder: review
+  5-4-disclaimer-states-readme: review
+
+  epic-6: backlog  # Phase 2 — not started
+  6-1-scores-and-settlement: backlog
+  6-2-calibration-view: backlog

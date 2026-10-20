@@ -1,0 +1,11 @@
+[
+  { "key": "soccer_epl", "group": "Soccer", "title": "EPL", "description": "English Premier League", "active": true, "has_outrights": false },
+  { "key": "soccer_spain_la_liga", "group": "Soccer", "title": "La Liga - Spain", "description": "Spanish Soccer", "active": true, "has_outrights": false },
+  { "key": "soccer_italy_serie_a", "group": "Soccer", "title": "Serie A - Italy", "description": "Italian Soccer", "active": true, "has_outrights": false },
+  { "key": "soccer_germany_bundesliga", "group": "Soccer", "title": "Bundesliga - Germany", "description": "German Soccer", "active": true, "has_outrights": false },
+  { "key": "soccer_france_ligue_one", "group": "Soccer", "title": "Ligue 1 - France", "description": "French Soccer", "active": true, "has_outrights": false },
+  { "key": "soccer_uefa_champs_league", "group": "Soccer", "title": "UEFA Champions League", "description": "European Champions League", "active": true, "has_outrights": false },
+  { "key": "soccer_uefa_europa_league", "group": "Soccer", "title": "UEFA Europa League", "description": "European Europa League", "active": true, "has_outrights": false },
+  { "key": "soccer_uefa_europa_conference_league", "group": "Soccer", "title": "UEFA Europa Conference League", "description": "UEFA Europa Conference League", "active": true, "has_outrights": false },
+  { "key": "americanfootball_nfl", "group": "American Football", "title": "NFL", "description": "US Football", "active": true, "has_outrights": false }
+]

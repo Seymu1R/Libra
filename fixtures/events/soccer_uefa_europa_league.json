@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mock_uefa_europa_league_0",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2030-01-02T00:00:00Z",
+    "home_team": "Ajax",
+    "away_team": "Roma"
+  },
+  {
+    "id": "mock_uefa_europa_league_1",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2030-01-03T03:00:00Z",
+    "home_team": "Tottenham Hotspur",
+    "away_team": "Lyon"
+  },
+  {
+    "id": "mock_uefa_europa_league_2",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2030-01-04T03:00:00Z",
+    "home_team": "Fenerbahce",
+    "away_team": "Rangers"
+  },
+  {
+    "id": "mock_uefa_europa_league_3",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2030-01-05T05:00:00Z",
+    "home_team": "Olympiacos",
+    "away_team": "Sporting Lisbon"
+  },
+  {
+    "id": "mock_uefa_europa_league_90",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2029-12-31T22:00:00Z",
+    "home_team": "Roma",
+    "away_team": "Ajax"
+  },
+  {
+    "id": "mock_uefa_europa_league_91",
+    "sport_key": "soccer_uefa_europa_league",
+    "sport_title": "soccer_uefa_europa_league",
+    "commence_time": "2030-01-10T00:00:00Z",
+    "home_team": "Lyon",
+    "away_team": "Tottenham Hotspur"
+  }
+]

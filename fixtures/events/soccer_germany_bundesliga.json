@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mock_germany_bundesliga_0",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2030-01-01T23:00:00Z",
+    "home_team": "Bayern Munich",
+    "away_team": "Borussia Dortmund"
+  },
+  {
+    "id": "mock_germany_bundesliga_1",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2030-01-03T01:00:00Z",
+    "home_team": "RB Leipzig",
+    "away_team": "Bayer Leverkusen"
+  },
+  {
+    "id": "mock_germany_bundesliga_2",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2030-01-04T05:00:00Z",
+    "home_team": "VfB Stuttgart",
+    "away_team": "Eintracht Frankfurt"
+  },
+  {
+    "id": "mock_germany_bundesliga_3",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2030-01-05T05:00:00Z",
+    "home_team": "SC Freiburg",
+    "away_team": "VfL Wolfsburg"
+  },
+  {
+    "id": "mock_germany_bundesliga_90",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2029-12-31T22:00:00Z",
+    "home_team": "Borussia Dortmund",
+    "away_team": "Bayern Munich"
+  },
+  {
+    "id": "mock_germany_bundesliga_91",
+    "sport_key": "soccer_germany_bundesliga",
+    "sport_title": "soccer_germany_bundesliga",
+    "commence_time": "2030-01-10T00:00:00Z",
+    "home_team": "Bayer Leverkusen",
+    "away_team": "RB Leipzig"
+  }
+]
