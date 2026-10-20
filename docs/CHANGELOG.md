@@ -8,7 +8,7 @@ Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, n
 - AviDelux-Latest-Platform-dan BMAD/WDS iş strukturu köçürüldü: `_bmad/`, `.claude/skills/`, `.agents/skills/` (86 skill), `_bmad-output/`.
 - Konfiqurasiya Tərəzi-yə uyğunlaşdırıldı (layihə adı, istifadəçi Seymur, ünsiyyət dili Azərbaycan dili).
 - Yaradıldı: `CLAUDE.md`, `_bmad-output/project-context.md`, PRD, arxitektura, epiklər, `sprint-status.yaml`, `ProjectDocs/original-brief.md` (tapşırıq olduğu kimi), `docs/decisions.md`, `docs/open-issues.md`.
-- `git init` (commit yoxdur).
+- `git init`; GitHub-a push edildi: https://github.com/Seymu1R/Libra (`main`, commit a3e51a6).
 
 **Kod (Epic 0–5)**
 - Scaffold: Next.js 16.4, React 19.3, TS 5.9, Tailwind 4, Vitest 5, Prisma 7.10 + SQLite, zod 4.

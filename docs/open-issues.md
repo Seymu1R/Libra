@@ -1,7 +1,49 @@
-# Open Issues
+# Açıq məsələlər
 
-- [ ] **Live sport-key check** — run `npm run verify:sports` once `ODDS_API_KEY` exists; report any ✘ to the owner.
-- [ ] **O/U 2.5 coverage risk** — docs say totals are "mainly available for US sports and bookmakers". After the first real sync, check how many EU soccer matches reach `MIN_BOOKMAKERS` for OU25.
-- [ ] **Soccer h2h outcome names** — code assumes team names + `"Draw"` (not shown literally in docs). Verify on the first real response.
-- [ ] **Template overlap** — greedy by probability + DC + fill to maxLegs makes Sabit/Balanslı/Riskli nested subsets of the same top DC legs. Options for the owner: probability bands per type (e.g. Riskli legs 50–60%), or exclude legs already used by a safer template.
-- [ ] **npm audit** — 5 high advisories in the dev-only ESLint chain (`eslint-config-next` → `fast-glob` → `micromatch` → `braces`); not shipped at runtime. Revisit when eslint-config-next updates.
+Son yenilənmə: **2026-10-20**. Həll olunan məsələ `[x]` ilə işarələnir, tarix və qısa izah əlavə olunur (silinmir).
+
+## 🔴 Bloklayan — API açarı gəldikdən sonra
+
+- [ ] **1. Turnir açarlarının real yoxlanması.** 8 açar rəsmi sənəddən götürülüb, hələ real API ilə yoxlanmayıb.
+  `.env`-ə `ODDS_API_KEY` əlavə et, sonra `npm run verify:sports` işlət (pulsuzdur). ✘ çıxan turnir olsa, sahibinə bildir, açarı təxmin etmə.
+  Bu skript `fixtures/sports.json`-u real cavabla əvəz edir; hazırkı fayl sənəd formatında əl ilə yazılıb.
+- [ ] **2. Ü/A 2.5 bazarının əhatəsi.** Sənəddə deyilir ki, `totals` "əsasən ABŞ idmanları və bukmekerləri üçündür".
+  İlk real sinxrondan sonra yoxla: Avropa futbolunda neçə matçda Ü/A 2.5 `MIN_BOOKMAKERS`-ə (8) çatır.
+  Çox az matç çatırsa, sahibi ilə danış. Həll yolları: bu bazar üçün ayrıca hədd və ya başqa region.
+- [ ] **3. Heç-heçənin adı.** Kod 1X2 nəticələrini komanda adları və `"Draw"` kimi oxuyur, amma sənəddə bu ad dəqiq göstərilməyib.
+  İlk real cavabda yoxla. Ad başqadırsa, bütün matçlar "analiz edilmədi" kimi görünəcək. Düzəliş yeri: `lib/analysis/book-prices.ts` → `h2hBooks`.
+- [ ] **4. Kredit hesabı.** Gözlənilən xərc turnir başına 2 kreditdir. İlk real sinxrondan sonra `x-requests-last` header-i ilə təsdiqlə.
+  `ApiCallLog` cədvəlinə baxmaq üçün: `npm run db:studio`.
+
+## 🟡 Sahibinin qərarı lazımdır
+
+- [ ] **5. Kupon şablonları üst-üstə düşür.** Greedy seçim + ikili şans + `maxLegs`-ə qədər doldurma birlikdə belə nəticə verir:
+  Riskli ⊇ Balanslı ⊇ Sabit, yəni hamısı eyni ən yüksək ehtimallı ikili şans seçimlərindən ibarətdir.
+  Test datasında: Sabit 77,2% · Balanslı 69,2% · Riskli 53,9%. Seçimlər eyni matçlardandır, sadəcə sayı fərqlidir.
+  Variantlar:
+  - (a) hər tip üçün ehtimal **aralığı** (məs. Riskli 50–60%, Balanslı 60–70%, Sabit ≥ 70%);
+  - (b) daha təhlükəsiz şablonda istifadə olunan matçı növbəti şablonda **təkrar etməmək**;
+  - (c) ikili şansı yalnız Sabit-də saxlamaq.
+  Dəyişiklik yeri: `lib/config.ts` (`TEMPLATES`) və `lib/templates/build.ts`.
+- [ ] **6. `AGENTS.md`.** Bu faylı `next dev` avtomatik yaradır (Next 16-nın agentlər üçün qeydi) və repo-ya commit olunub.
+  Saxlamaq və ya `next.config.ts`-də `agentRules: false` qoyub söndürmək — sahibi qərar verməlidir.
+
+## 🟢 Texniki borc / proses
+
+- [ ] **7. Story-lər `review` statusundadır.** Epic 0–5-in bütün story-ləri `sprint-status.yaml`-da `review`-dadır.
+  Code review (`/bmad-code-review` və ya `/code-review`) edilməli, sonra `done` statusuna keçməlidir.
+- [ ] **8. BMAD story və spec faylları yoxdur.** Epic 0–5 bir dəfəyə yazılıb, hər story üçün ayrıca fayl yaradılmayıb.
+  Yalnız ümumi qeyd var: `_bmad-output/implementation-artifacts/implementation-log-2026-10-20.md`.
+  Yeni story-lər (Epic 6-dan başlayaraq) BMAD qaydası ilə yazılmalıdır: story faylı + spec faylı.
+- [ ] **9. E2E testlər yoxdur.** Hazırda 52 unit və servis testi var. UI yalnız əl ilə və screenshot ilə yoxlanıb.
+  Playwright ilə əsas axın üçün test yazmaq olar: sinxron → matçlar → kupon → fərdi kupon.
+- [ ] **10. `npm audit`: 5 yüksək səviyyəli xəbərdarlıq.** Hamısı yalnız inkişaf alətlərindədir (`eslint-config-next` → `fast-glob` → `micromatch` → `braces`).
+  İşləyən tətbiqə düşmür. `eslint-config-next` yeniləndikdə yenidən bax.
+- [ ] **11. Port 3000 məşğul ola bilər.** Seymur-un kompüterində 3000-i `rifah-api-gateway` tutur.
+  Belə olanda Next özü başqa port seçir (məs. 3004), ona görə terminalda göstərilən linkə bax.
+
+## ⚪ Gələcək (Epic 6 — Phase 2)
+
+- [ ] **12. Final hesablar və kupon nəticələri.** `/v4/sports/{sport}/scores?daysFrom=1..3` endpoint-i lazımdır.
+  Xərc: `daysFrom` ilə 2 kredit. Hesab **string** kimi gəlir. Sxem artıq hazırdır: `Match.homeScore/awayScore/completed`, `Template.status/settledAt`, `TemplateLeg.result`.
+- [ ] **13. Kalibrləmə görünüşü.** Sual budur: ehtimalı ~X% olan kuponlar həqiqətən ~X% hallarda keçirmi? Ehtimal aralıqlarına görə qazanma faizi göstərilməlidir.
