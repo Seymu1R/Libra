@@ -25,6 +25,14 @@ Son yenilənmə: **2026-10-20**. Həll olunan məsələ `[x]` ilə işarələnir
   - (b) daha təhlükəsiz şablonda istifadə olunan matçı növbəti şablonda **təkrar etməmək**;
   - (c) ikili şansı yalnız Sabit-də saxlamaq.
   Dəyişiklik yeri: `lib/config.ts` (`TEMPLATES`) və `lib/templates/build.ts`.
+- [ ] **14. Baza bir neçə kompüterdə paylaşılmır.** `prisma/dev.db` (SQLite) lokal fayldır və git-ə düşmür. Hər kompüterdə ayrı, boş baza olur.
+  Test rejimində problem deyil. Real API-dən sonra isə vacib olacaq: sinxronlar kredit xərcləyir, Phase 2 kalibrləməsi isə həftələrlə toplanmış tarixçə tələb edir.
+  **Təklif:** real API-yə keçəndə pulsuz hosted PostgreSQL-ə (Neon / Supabase) keçmək. Bir neçə yerdə dəyişiklik lazımdır:
+  - `prisma/schema.prisma` → `provider = "postgresql"`;
+  - `server/db.ts` → `@prisma/adapter-pg`;
+  - `.env` → yeni `DATABASE_URL`;
+  - yeni miqrasiya.
+  Sxem artıq Postgres-ə uyğundur. `.db` faylını git-ə qoymaq tövsiyə edilmir: binardır, iki kompüterdə dəyişsə birləşdirmək olmur.
 - [ ] **6. `AGENTS.md`.** Bu faylı `next dev` avtomatik yaradır (Next 16-nın agentlər üçün qeydi) və repo-ya commit olunub.
   Saxlamaq və ya `next.config.ts`-də `agentRules: false` qoyub söndürmək — sahibi qərar verməlidir.
 

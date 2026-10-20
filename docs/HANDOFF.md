@@ -32,7 +32,7 @@ Yoxlama: **52 test keçir**, `tsc` / `eslint` / `next build` təmiz, mock rejimd
 
 1. **API açarı yoxdur.** Açar alınanda: `.env` → `ODDS_API_KEY=...`, `USE_MOCK_DATA=false`, sonra `npm run verify:sports` (pulsuz). Nəticəni (✘ olan turnir varsa) sahibinə bildir.
 2. İlk real sinxrondan sonra yoxla: Ü/A 2.5 üçün kifayət qədər bukmeker varmı, heç-heçə `"Draw"` adlanırmı (bax `open-issues.md`).
-3. **Açıq məsələlər** — tam siyahı prioritetlə: [`open-issues.md`](open-issues.md) (13 bənd).
+3. **Açıq məsələlər** — tam siyahı prioritetlə: [`open-issues.md`](open-issues.md) (14 bənd).
 4. **Epic 6 (Phase 2)** — final hesablar, kuponların qazandı/uduzdu statusu, kalibrləmə. Sxem hazırdır (`Template.status`, `settledAt`, `TemplateLeg.result`, `Match.homeScore/awayScore/completed`).
 5. Epic 0–5 story-ləri `review` statusundadır — kod review-dan sonra `done`.
 
