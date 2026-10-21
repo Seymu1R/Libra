@@ -1,5 +1,5 @@
 import "server-only";
-import { allLegs, allowedDespiteBlock, buildTemplates, type Leg } from "@/lib/templates/build";
+import { allLegs, allowedDespiteBlock, buildTemplates, couponSignature, type Leg } from "@/lib/templates/build";
 import { combine } from "@/lib/templates/combine";
 import { SAVED_TEMPLATE_TYPES, TEMPLATES, type SavedTemplateType } from "@/lib/config";
 import type { PrismaClient } from "@/generated/prisma/client";
@@ -59,9 +59,9 @@ export interface CustomLegInput {
 }
 
 /**
- * Saves a coupon (manual builder = CUSTOM, generator = GENERATED). Probabilities are recomputed
- * server-side from the stored snapshot, so the client cannot submit arbitrary numbers.
- * Generated coupons must respect the repeat rule; the manual builder is left as before.
+ * Saves a coupon (manual builder = CUSTOM, generator = GENERATED, kept system suggestion = SAVED_<rule>).
+ * Probabilities are recomputed server-side from the stored snapshot, so the client cannot submit arbitrary numbers.
+ * Everything except the manual builder must respect the repeat rule.
  * Auto templates are rebuilt afterwards so they stop using the newly blocked matches.
  */
 export async function saveCustomTemplate(
@@ -81,7 +81,13 @@ export async function saveCustomTemplate(
     if (!leg) throw new Error(`Seçim tapılmadı və ya matç artıq başlayıb: ${p.matchId} ${p.market} ${p.selection}`);
     return leg;
   });
-  if (type === "GENERATED") {
+  const existing = await db.template.findMany({
+    where: { type: { in: [...SAVED_TEMPLATE_TYPES] }, status: "PENDING" },
+    select: { legs: { select: { matchId: true, market: true, selection: true } } },
+  });
+  const signature = couponSignature(legs);
+  if (existing.some((t) => couponSignature(t.legs) === signature)) throw new Error("Bu kupon artıq yadda saxlanılıb.");
+  if (type !== "CUSTOM") {
     const blocked = await blockedMatchIds(db, now);
     const repeated = legs.find((l) => !allowedDespiteBlock(l, blocked, TEMPLATES.repeatAllowedAbove));
     if (repeated) throw new Error(`${repeated.homeTeam} — ${repeated.awayTeam} artıq saxlanmış kupondadır.`);

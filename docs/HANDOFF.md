@@ -26,7 +26,7 @@ və yalnız baxış üçün kupon şablonları quran şəxsi, lokal veb tətbiq.
 | 4 — Kuponlar (`lib/templates`) | Deterministik greedy: Sabit / Balanslı / Riskli, matç başına 1 seçim, fərdi kupon (server ehtimalları yenidən hesablayır) |
 | 5 — UI | Header (sinxron, turnir seçimi, son sinxron, kredit, gözləmə), Matçlar, Kuponlar + fərdi kupon qurucusu, xəbərdarlıq, mobil görünüş. **2026-10-21:** semantik rəng tokenləri (`app/globals.css`), Gündüz / Gecə / Sistem keçidi, Fira şriftləri, SVG loqo |
 
-| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir, "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq |
+| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir (Hədəf-də "Matç sayı" ilə sabitlənə bilər), "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq. Sistemin təklifləri də saxlanıla bilər; silmədən əvvəl təsdiq soruşulur |
 
 Yoxlama: **70 test keçir**, `tsc` / `eslint` / `next build` təmiz, mock rejimdə tam axın brauzerdə yoxlanıb.
 
@@ -35,7 +35,7 @@ Yoxlama: **70 test keçir**, `tsc` / `eslint` / `next build` təmiz, mock rejimd
 1. **Real API qoşulub (2026-10-21).** `.env`-də `ODDS_API_KEY` var, `USE_MOCK_DATA=false`. İlk real sinxron: 8 turnir, 97 matç, 16 kredit (qalıb 484/500).
    Açar yalnız bu kompüterin `.env`-indədir. Başqa kompüterdə onu əl ilə yazmaq lazımdır (git-ə düşmür).
 2. Real data yoxlamaları (#1–4) bitib, bax `open-issues.md`. Pulsuz planda ayda ~30 tam sinxron etmək olar.
-3. **Açıq məsələlər** — tam siyahı prioritetlə: [`open-issues.md`](open-issues.md). #5 həll olunub; yeni bəndlər: #15 (Fərdi kuponun yenilənməsi), #16 (generatorun seçim sayı).
+3. **Açıq məsələlər** — tam siyahı prioritetlə: [`open-issues.md`](open-issues.md). #5 həll olunub; yeni bəndlər: #15 (Fərdi kuponun yenilənməsi), #16 (generatorun seçim sayı — Hədəf üçün həll olunub, Aralıq/Real üçün açıqdır).
 4. **Epic 6 (Phase 2)** — final hesablar, kuponların qazandı/uduzdu statusu, kalibrləmə. Sxem hazırdır (`Template.status`, `settledAt`, `TemplateLeg.result`, `Match.homeScore/awayScore/completed`).
 5. Epic 0–5 və Epic 7 story-ləri `review` statusundadır — kod review-dan sonra `done`.
 6. Sahibi "Fərdi kupon" bölməsini sonra yeniləmək istəyir (#15).

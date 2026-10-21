@@ -49,3 +49,5 @@ development_status:
   7-1-no-repeat-rule: review
   7-2-coupon-generator: review
   7-3-date-filter: review
+  7-4-keep-suggestions-and-delete: review
+  7-5-generator-leg-count: review

@@ -55,6 +55,7 @@ Son yenilənmə: **2026-10-21**. Həll olunan məsələ `[x]` ilə işarələnir
 - [ ] **16. Generatorun "ən az seçim" xüsusiyyəti.** Aşağı hədəfə (məs. 10%) generator 2 seçimlə çatmağa çalışır, yəni hər seçim ~30% olur.
   Sahibi daha çox, amma daha yüksək ehtimallı seçim istəsə, `GENERATOR.minLegs` / `minLegProbability` (`lib/config.ts`) dəyişdirilə bilər
   və ya seçim sayı üçün input əlavə oluna bilər.
+  ✅ 2026-10-21: "Hədəf" rejimində "Matç sayı" sahəsi əlavə olundu (Story 7.5). Aralıq / Real əmsal üçün hələ yoxdur.
 
 ## ⚪ Gələcək (Epic 6 — Phase 2)
 

@@ -73,9 +73,14 @@ export const TEMPLATES = {
   ] satisfies TemplateRule[],
 } as const;
 
-/** Saved (user-kept) coupon types. Their matches are blocked for new coupons — see `repeatAllowedAbove`. */
-export const SAVED_TEMPLATE_TYPES = ["CUSTOM", "GENERATED"] as const;
+/**
+ * Saved (user-kept) coupon types: manual builder, generator, and a kept system suggestion (`SAVED_<rule type>`).
+ * Their matches are blocked for new coupons — see `repeatAllowedAbove`.
+ */
+export const SAVED_TEMPLATE_TYPES = ["CUSTOM", "GENERATED", "SAVED_SABIT", "SAVED_BALANSLI", "SAVED_RISKLI"] as const;
 export type SavedTemplateType = (typeof SAVED_TEMPLATE_TYPES)[number];
+
+export const savedTypeFor = (type: TemplateType): SavedTemplateType => `SAVED_${type}`;
 
 export const GENERATOR = {
   /** The generator picks the leg count itself, within these bounds (fewest legs that hit the goal). */

@@ -3,12 +3,13 @@ import { allowedDespiteBlock, compareLegs, type Leg } from "./build";
 import { combine } from "./combine";
 
 /**
- * - target: coupon probability ≈ `probability` (the UI links it to fair odds = 1 / probability)
+ * - target: coupon probability ≈ `probability` (the UI links it to fair odds = 1 / probability);
+ *           optional `legs` fixes the leg count, otherwise the generator picks it
  * - range:  fair odds ≥ `minOdds` and probability ≥ `minProbability` → probability ∈ [minProbability, 1 / minOdds]
  * - real:   product of the best bookmaker prices ≥ `minRealOdds` and consensus probability ≥ `minProbability`
  */
 export type GeneratorGoal =
-  | { mode: "target"; probability: number }
+  | { mode: "target"; probability: number; legs?: number }
   | { mode: "range"; minOdds: number; minProbability: number }
   | { mode: "real"; minRealOdds: number; minProbability: number };
 
@@ -77,17 +78,25 @@ function windowFor(goal: GeneratorGoal, tolerance: number): Window | string {
   return { lo, hi: 1, minRealOdds: goal.minRealOdds, targets, rank: (x) => -x };
 }
 
-/** Picks `k` legs (one per match) whose probability product is as close as possible to `target`. */
-function pickFor(candidates: readonly Leg[], k: number, target: number, preferValue: boolean): Leg[] | null {
-  const perLeg = Math.log(target) / k;
-  const score = (l: Leg) =>
-    Math.abs(Math.log(l.probability) - perLeg) - (preferValue && l.bestOdds ? Math.log(l.bestOdds.price * l.probability) : 0);
-
-  const bestPerMatch = new Map<string, Leg>();
-  for (const l of [...candidates].sort((a, b) => score(a) - score(b) || compareLegs(a, b))) {
-    if (!bestPerMatch.has(l.matchId)) bestPerMatch.set(l.matchId, l);
-  }
-  const chosen = [...bestPerMatch.values()].sort((a, b) => score(a) - score(b) || compareLegs(a, b)).slice(0, k);
+/**
+ * Picks `k` legs (one per match) whose probability product is as close as possible to `target`.
+ * `safeLegs` seeds the search with that many of the most likely legs and spreads the rest of the target
+ * over the others — different seeds escape the local optima a single even split gets stuck in.
+ */
+function pickFor(candidates: readonly Leg[], k: number, target: number, preferValue: boolean, safeLegs = 0): Leg[] | null {
+  const chosen: Leg[] = [];
+  const taken = new Set<string>();
+  const fill = (n: number, score: (l: Leg) => number) => {
+    for (const l of [...candidates].sort((a, b) => score(a) - score(b) || compareLegs(a, b))) {
+      if (chosen.length >= n) break;
+      if (taken.has(l.matchId)) continue;
+      chosen.push(l);
+      taken.add(l.matchId);
+    }
+  };
+  fill(safeLegs, (l) => -l.probability);
+  const perLeg = (Math.log(target) - chosen.reduce((s, l) => s + Math.log(l.probability), 0)) / (k - chosen.length);
+  fill(k, (l) => Math.abs(Math.log(l.probability) - perLeg) - (preferValue && l.bestOdds ? Math.log(l.bestOdds.price * l.probability) : 0));
   if (chosen.length < k) return null;
 
   // Local search: swap single legs while it moves the product closer to the target.
@@ -102,7 +111,10 @@ function pickFor(candidates: readonly Leg[], k: number, target: number, preferVa
       for (const c of candidates) {
         if (others.has(c.matchId) || c === chosen[i]) continue;
         const dist = Math.abs(base + Math.log(c.probability) - goal);
-        if (dist < current - 1e-12 && (!best || dist < best.dist - 1e-12 || (Math.abs(dist - best.dist) <= 1e-12 && compareLegs(c, best.leg) < 0))) {
+        if (
+          dist < current - 1e-12 &&
+          (!best || dist < best.dist - 1e-12 || (Math.abs(dist - best.dist) <= 1e-12 && compareLegs(c, best.leg) < 0))
+        ) {
           best = { i, leg: c, dist };
         }
       }
@@ -118,8 +130,12 @@ function pickFor(candidates: readonly Leg[], k: number, target: number, preferVa
  * that satisfy the goal. One leg per match; saved-coupon matches follow the repeat rule.
  */
 export function generateCoupon(legs: readonly Leg[], goal: GeneratorGoal, opts: GeneratorOptions): GenerateResult {
-  const minLegs = opts.minLegs ?? GENERATOR.minLegs;
-  const maxLegs = opts.maxLegs ?? GENERATOR.maxLegs;
+  const fixedLegs = goal.mode === "target" ? goal.legs : undefined;
+  const minLegs = fixedLegs ?? opts.minLegs ?? GENERATOR.minLegs;
+  const maxLegs = fixedLegs ?? opts.maxLegs ?? GENERATOR.maxLegs;
+  if (fixedLegs !== undefined && !(Number.isInteger(fixedLegs) && fixedLegs >= GENERATOR.minLegs && fixedLegs <= GENERATOR.maxLegs)) {
+    return { ok: false, error: `Matç sayı ${GENERATOR.minLegs} ilə ${GENERATOR.maxLegs} arasında tam ədəd olmalıdır.` };
+  }
   const window = windowFor(goal, opts.targetTolerance ?? GENERATOR.targetTolerance);
   if (typeof window === "string") return { ok: false, error: window };
 
@@ -132,6 +148,9 @@ export function generateCoupon(legs: readonly Leg[], goal: GeneratorGoal, opts: 
   );
   const matchCount = new Set(candidates.map((l) => l.matchId)).size;
   if (matchCount < minLegs) {
+    if (fixedLegs !== undefined && matchCount >= GENERATOR.minLegs) {
+      return { ok: false, error: `Bu filtrdə yalnız ${matchCount} uyğun matç var — matç sayını azaldın.` };
+    }
     return { ok: false, error: "Kifayət qədər uyğun matç yoxdur (saxlanmış kuponların matçları istisna olunub)." };
   }
 
@@ -162,12 +181,23 @@ export function generateCoupon(legs: readonly Leg[], goal: GeneratorGoal, opts: 
         for (let j = i + 1; j < sorted.length; j++) if (sorted[i]!.matchId !== sorted[j]!.matchId) consider([sorted[i]!, sorted[j]!]);
     } else {
       const pools = valueMode ? [k + 2, 2 * k, 4 * k].map((n) => byValue.slice(0, n)).concat([candidates]) : [candidates];
-      for (const pool of pools) for (const target of window.targets) consider(pickFor(pool, k, target, valueMode));
+      for (const pool of pools)
+        for (const target of window.targets) for (let safe = 0; safe < k; safe++) consider(pickFor(pool, k, target, valueMode, safe));
     }
     if (best) return { ok: true, coupon: best };
   }
   if (valueMode) {
-    return { ok: false, error: "Bu şərtlərə uyğun kupon tapılmadı. Real əmsallar adətən ədalətli əmsaldan bir az aşağıdır (bukmeker marjası) — minimum əmsalı və ya ehtimalı azaldın." };
+    return {
+      ok: false,
+      error:
+        "Bu şərtlərə uyğun kupon tapılmadı. Real əmsallar adətən ədalətli əmsaldan bir az aşağıdır (bukmeker marjası) — minimum əmsalı və ya ehtimalı azaldın.",
+    };
+  }
+  if (fixedLegs !== undefined) {
+    return {
+      ok: false,
+      error: `${fixedLegs} matçla bu hədəfə uyğun kupon tapılmadı — hədəfi və ya matç sayını dəyişin (boş buraxsanız sistem özü seçər).`,
+    };
   }
   return { ok: false, error: "Bu şərtlərə uyğun kupon tapılmadı. Hədəfi dəyişin." };
 }

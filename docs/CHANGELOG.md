@@ -2,6 +2,24 @@
 
 Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, nə edildi, harada). Köhnə qeydlər dəyişdirilmir.
 
+## 2026-10-21 — Sessiya 2: generatorda matç sayı (Story 7.5)
+
+- Generatorun "Hədəf" rejiminə üçüncü sahə əlavə olundu: **Matç sayı (2–8)**. Boş qalsa, sistem sayı özü seçir (əvvəlki kimi).
+  Əmsal + say və ya ehtimal + say eyni işləyir, çünki əmsal və ehtimal bir-biri ilə bağlıdır.
+- Sabit say olanda axtarış daha güclüdür: bir neçə başlanğıc nöqtəsindən yoxlayır, mümkün kuponu buraxmır.
+- Aralıq və Real əmsal rejimləri dəyişmədi (sahibi: "hələlik hədəfə").
+- **Yoxlama:** 81 test ✔ (+2) · tsc ✔ · eslint ✔. Real datada yoxlandı: 2,50×2 və ×4, 5,00×6, 10,00×3 dəqiq alınır;
+  1,20×8 mümkün deyil, aydın xəta göstərilir.
+
+## 2026-10-21 — Sessiya 2: təklifləri saxlamaq + silmə (Story 7.4)
+
+- Sistemin təkliflərinə (Sabit/Balanslı/Riskli) "Yadda saxla" düyməsi əlavə olundu. Saxlanan kupon "Sistem · Sabit" və s. adı ilə görünür.
+- Eyni kuponu ikinci dəfə saxlamaq olmur: server buna icazə vermir, kartda isə "✓ Saxlanılıb" yazılır.
+  Sabit-in seçimləri >70% olduğu üçün o, saxlandıqdan sonra da təkliflərdə qalır.
+- Saxlanmış kuponlarda silmə düyməsi daha görünəndir: qırmızı çərçivə + zibil qutusu ikonu.
+  Səhvən silməmək üçün kartın içində təsdiq var ("Silinsin? Bəli, sil / Ləğv et"), Esc ilə ləğv olunur.
+- **Yoxlama:** 79 test ✔ · tsc ✔ · eslint ✔. Real bazanın nüsxəsi ilə headless Chrome-da yoxlandı, baza sonra geri qaytarıldı.
+
 ## 2026-10-21 — Sessiya 2: tarix filtri (Story 7.3)
 
 - Kuponlar səhifəsinin yuxarısına tarix filtri əlavə olundu (`components/DateFilter.tsx`, `lib/date-filter.ts`). Seçimlər:

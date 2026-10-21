@@ -41,6 +41,31 @@ describe("generateCoupon", () => {
     expect(r.ok && r.coupon.legs.length).toBe(2);
   });
 
+  it("target: a fixed match count is respected", () => {
+    for (const legs of [3, 5]) {
+      const r = generateCoupon(POOL, { mode: "target", probability: 0.2, legs }, OPTS);
+      expect(r.ok).toBe(true);
+      if (!r.ok) return;
+      expect(r.coupon.legs).toHaveLength(legs);
+      expect(new Set(matches(r.coupon.legs)).size).toBe(legs);
+      expect(Math.abs(r.coupon.combinedProbability / 0.2 - 1)).toBeLessThanOrEqual(0.05);
+    }
+  });
+
+  it("target: explains an impossible or invalid match count", () => {
+    const impossible = generateCoupon(POOL, { mode: "target", probability: 0.9, legs: 8 }, OPTS);
+    expect(impossible.ok).toBe(false);
+    if (!impossible.ok) expect(impossible.error).toContain("8 matçla");
+    const tooMany = generateCoupon(
+      POOL.filter((l) => "abc".includes(l.matchId)),
+      { mode: "target", probability: 0.3, legs: 5 },
+      OPTS,
+    );
+    expect(tooMany.ok).toBe(false);
+    if (!tooMany.ok) expect(tooMany.error).toContain("yalnız 3 uyğun matç");
+    for (const legs of [1, 9, 2.5]) expect(generateCoupon(POOL, { mode: "target", probability: 0.3, legs }, OPTS).ok).toBe(false);
+  });
+
   it("is deterministic regardless of input order", () => {
     const a = generateCoupon(POOL, { mode: "target", probability: 0.3 }, OPTS);
     const b = generateCoupon([...POOL].reverse(), { mode: "target", probability: 0.3 }, OPTS);
@@ -86,7 +111,11 @@ describe("generateCoupon", () => {
   });
 
   it("reports when there are not enough matches", () => {
-    const r = generateCoupon(POOL.filter((l) => l.matchId === "a"), { mode: "target", probability: 0.4 }, OPTS);
+    const r = generateCoupon(
+      POOL.filter((l) => l.matchId === "a"),
+      { mode: "target", probability: 0.4 },
+      OPTS,
+    );
     expect(r.ok).toBe(false);
   });
 

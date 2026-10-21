@@ -41,6 +41,11 @@ export function allowedDespiteBlock(leg: Pick<Leg, "matchId" | "probability">, b
 
 const MARKET_ORDER: Record<Market, number> = { "1X2": 0, OU25: 1, DC: 2 };
 
+/** Order-independent identity of a coupon's selections — equal for the same picks. */
+export function couponSignature(legs: readonly { matchId: string; market: string; selection: string }[]): string {
+  return legs.map((l) => `${l.matchId}|${l.market}|${l.selection}`).sort().join(";");
+}
+
 /** probability desc → disagreement asc → market → selection → match id. Fully deterministic. */
 export function compareLegs(a: Leg, b: Leg): number {
   return (

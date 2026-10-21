@@ -19,9 +19,17 @@ interface Props {
 }
 
 const MODES: { value: Mode; label: string; hint: string }[] = [
-  { value: "target", label: "Hədəf", hint: "Əmsal və ya ehtimal yazın — biri o birini avtomatik doldurur. Kupon bu hədəfə ən yaxın qurulur." },
+  {
+    value: "target",
+    label: "Hədəf",
+    hint: "Əmsal və ya ehtimal yazın — biri o birini avtomatik doldurur. Matç sayını da yaza bilərsiniz; boş qalsa sistem özü seçir. Kupon bu hədəfə ən yaxın qurulur.",
+  },
   { value: "range", label: "Aralıq", hint: "Kuponun ədalətli əmsalı ən azı bu qədər, ehtimalı ən azı bu qədər olmalıdır." },
-  { value: "real", label: "Real əmsal", hint: "Əmsal bukmekerlərdəki ən yaxşı real əmsalların hasilidir (ödəniş). İkili şans bu rejimdə istifadə olunmur — onun real əmsalı yoxdur." },
+  {
+    value: "real",
+    label: "Real əmsal",
+    hint: "Əmsal bukmekerlərdəki ən yaxşı real əmsalların hasilidir (ödəniş). İkili şans bu rejimdə istifadə olunmur — onun real əmsalı yoxdur.",
+  },
 ];
 
 const toInput = (n: number, digits: number) => n.toFixed(digits).replace(".", ",");
@@ -31,6 +39,7 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
   const [mode, setMode] = useState<Mode>("target");
   const [odds, setOdds] = useState("2,50");
   const [percent, setPercent] = useState("40,0");
+  const [legCount, setLegCount] = useState("");
   const [coupon, setCoupon] = useState<GeneratedCoupon | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -60,14 +69,15 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
     setSaved(false);
     const o = parseDecimal(odds);
     const p = parseDecimal(percent) / 100;
-    if (Number.isNaN(o) || Number.isNaN(p)) {
+    const k = legCount.trim() === "" ? undefined : Number(legCount.trim());
+    if (Number.isNaN(o) || Number.isNaN(p) || (mode === "target" && k !== undefined && Number.isNaN(k))) {
       setCoupon(null);
-      setError("Rəqəmləri düzgün daxil edin (məs. 2,50 və 40).");
+      setError("Rəqəmləri düzgün daxil edin (məs. 2,50, 40 və 3).");
       return;
     }
     const goal: GeneratorGoal =
       mode === "target"
-        ? { mode, probability: p }
+        ? { mode, probability: p, legs: k }
         : mode === "range"
           ? { mode, minOdds: o, minProbability: p }
           : { mode, minRealOdds: o, minProbability: p };
@@ -116,8 +126,9 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
     <section className="rounded-xl border border-border bg-surface p-5">
       <h1 className="text-xl font-semibold">Kupon generatoru</h1>
       <p className="mt-1 max-w-3xl text-sm text-muted">
-        Hədəfi daxil edin — sistem seçim sayını özü təyin edib uyğun kuponu qurur ({GENERATOR.minLegs}–{GENERATOR.maxLegs} seçim). Saxlanmış
-        kuponların matçları təkrarlanmır; ehtimalı {formatPercent(TEMPLATES.repeatAllowedAbove)}-dən yuxarı seçimlər istisnadır.
+        Hədəfi daxil edin — sistem uyğun kuponu qurur. Matç sayını yazmasanız, onu özü təyin edir ({GENERATOR.minLegs}–{GENERATOR.maxLegs}{" "}
+        matç). Saxlanmış kuponların matçları təkrarlanmır; ehtimalı {formatPercent(TEMPLATES.repeatAllowedAbove)}-dən yuxarı seçimlər
+        istisnadır.
       </p>
 
       <div role="group" aria-label="Rejim" className="mt-4 inline-flex rounded-lg border border-border bg-surface-2 p-0.5 text-sm">
@@ -151,6 +162,17 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
           </span>
         )}
         <NumberField id="gen-percent" label={percentLabel} value={percent} onChange={onPercent} placeholder="40" suffix="%" />
+        {mode === "target" && (
+          <NumberField
+            id="gen-legs"
+            label={`Matç sayı (${GENERATOR.minLegs}–${GENERATOR.maxLegs})`}
+            value={legCount}
+            onChange={(v) => setLegCount(v.replace(/\D/g, "").slice(0, 1))}
+            placeholder="Avto"
+            inputMode="numeric"
+            width="w-20"
+          />
+        )}
         <button
           type="submit"
           className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-on-primary transition-colors duration-150 hover:bg-primary-hover"
@@ -164,7 +186,9 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
           {error}
         </p>
       )}
-      {saved && !coupon && <p className="mt-3 text-sm text-primary-fg">Kupon yadda saxlanıldı. Onun matçları artıq digər kuponlarda təkrarlanmayacaq.</p>}
+      {saved && !coupon && (
+        <p className="mt-3 text-sm text-primary-fg">Kupon yadda saxlanıldı. Onun matçları artıq digər kuponlarda təkrarlanmayacaq.</p>
+      )}
 
       {coupon && (
         <div className="mt-5 rounded-lg border border-border bg-surface-2 p-4">
@@ -179,7 +203,8 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
                 </div>
                 <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-xs text-muted">
                   <span>
-                    {MARKET_LABEL[l.market]}: <strong>{SELECTION_LABEL[l.selection]}</strong> · {describeSelection(l.selection, l.homeTeam, l.awayTeam)}
+                    {MARKET_LABEL[l.market]}: <strong>{SELECTION_LABEL[l.selection]}</strong> ·{" "}
+                    {describeSelection(l.selection, l.homeTeam, l.awayTeam)}
                     {l.bestOdds && (
                       <span className="text-highlight">
                         {" "}
@@ -226,7 +251,16 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
   );
 }
 
-function NumberField(props: { id: string; label: string; value: string; onChange: (v: string) => void; placeholder: string; suffix?: string }) {
+function NumberField(props: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  suffix?: string;
+  inputMode?: "decimal" | "numeric";
+  width?: string;
+}) {
   return (
     <div>
       <label htmlFor={props.id} className="mb-1 block text-xs font-medium text-muted">
@@ -236,12 +270,12 @@ function NumberField(props: { id: string; label: string; value: string; onChange
         <input
           id={props.id}
           type="text"
-          inputMode="decimal"
+          inputMode={props.inputMode ?? "decimal"}
           autoComplete="off"
           value={props.value}
           placeholder={props.placeholder}
           onChange={(e) => props.onChange(e.target.value)}
-          className="tabular h-full w-28 rounded-md bg-transparent px-3 text-base outline-none"
+          className={`tabular h-full ${props.width ?? "w-28"} rounded-md bg-transparent px-3 text-base outline-none placeholder:text-subtle`}
         />
         {props.suffix && <span className="pr-3 text-sm text-subtle">{props.suffix}</span>}
       </div>

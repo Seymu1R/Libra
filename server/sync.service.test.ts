@@ -126,7 +126,7 @@ describe("analysis + templates on stored data", () => {
     const autoMatches = auto.flatMap((t) => t.legs.map((l) => l.matchId));
     expect(new Set(autoMatches).size).toBe(autoMatches.length);
 
-    const sameMatchLow = legs.find((l) => l.matchId === low.matchId && l.probability <= TEMPLATES.repeatAllowedAbove)!;
+    const sameMatchLow = legs.find((l) => l.matchId === low.matchId && l !== low && l.probability <= TEMPLATES.repeatAllowedAbove)!;
     await expect(saveCustomTemplate(db, sync.id, [sameMatchLow], NOW, "GENERATED")).rejects.toThrow(/saxlanmış kupondadır/);
     const sameMatchHigh = legs.find((l) => l.matchId === low.matchId && l.probability > TEMPLATES.repeatAllowedAbove);
     if (sameMatchHigh) await expect(saveCustomTemplate(db, sync.id, [sameMatchHigh], NOW, "GENERATED")).resolves.toBeTruthy();
@@ -141,5 +141,30 @@ describe("analysis + templates on stored data", () => {
     await saveCustomTemplate(db, first.id, [leg], NOW, "GENERATED");
     const second = await runSync(["soccer_epl"], { db, client: mock(), now: () => NOW });
     expect((await listTemplates(db, second.id)).some((t) => t.type === "GENERATED")).toBe(true);
+  });
+
+  it("a kept system suggestion blocks its matches and the suggestions rebuild without them", async () => {
+    const sync = await runSync(undefined, { db, client: mock(), now: () => NOW });
+    const [riskli] = (await regenerateTemplates(db, sync.id, NOW)).filter((b) => b.rule.type === "RISKLI");
+    const legs = riskli!.template!.legs;
+    await saveCustomTemplate(db, sync.id, legs, NOW, "SAVED_RISKLI");
+
+    const blocked = await blockedMatchIds(db, NOW);
+    for (const l of legs) expect(blocked.has(l.matchId)).toBe(true);
+    const autoLegs = (await listTemplates(db, sync.id)).filter((t) => t.type === "RISKLI").flatMap((t) => t.legs);
+    for (const l of autoLegs.filter((x) => blocked.has(x.matchId))) expect(l.probability).toBeGreaterThan(TEMPLATES.repeatAllowedAbove);
+
+    // the same low-probability coupon cannot be kept twice
+    const low = legs.filter((l) => l.probability <= TEMPLATES.repeatAllowedAbove);
+    if (low.length) await expect(saveCustomTemplate(db, sync.id, low, NOW, "SAVED_RISKLI")).rejects.toThrow(/saxlanmış kupondadır/);
+  });
+
+  it("the same coupon cannot be saved twice (e.g. a Sabit whose > 70% legs stay in the suggestion)", async () => {
+    const sync = await runSync(undefined, { db, client: mock(), now: () => NOW });
+    const [sabit] = await regenerateTemplates(db, sync.id, NOW);
+    const legs = sabit!.template!.legs;
+    await saveCustomTemplate(db, sync.id, legs, NOW, "SAVED_SABIT");
+    await expect(saveCustomTemplate(db, sync.id, [...legs].reverse(), NOW, "SAVED_SABIT")).rejects.toThrow(/artıq yadda saxlanılıb/);
+    await expect(saveCustomTemplate(db, sync.id, legs, NOW, "CUSTOM")).rejects.toThrow(/artıq yadda saxlanılıb/);
   });
 });

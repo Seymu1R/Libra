@@ -48,6 +48,8 @@ Each epic = one phase from the brief. Each story gets a story file in
   probability; Real əmsal — min best-bookmaker odds + min probability), leg count chosen automatically, "Yadda saxla".
   Fərdi kupon builder stays unchanged (to be reworked later).
 - **7.3** Date filter on Kuponlar (24 saat default · Bu həftə · Ümumi · Tarix · Aralıq) for generator, suggestions and builder.
+- **7.4** Keep a system suggestion ("Yadda saxla"), duplicate-save guard, visible two-step delete for saved coupons.
+- **7.5** Generator "Hədəf" mode: optional match count (2–8) next to odds ⇄ probability; empty = automatic.
 
 ## Questions for the owner (block coding until answered)
 1. Do you already have an `ODDS_API_KEY` (free tier)? Story 1.1 needs one call to `/v4/sports`.
