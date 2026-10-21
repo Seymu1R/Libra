@@ -41,6 +41,13 @@ Each epic = one phase from the brief. Each story gets a story file in
 - **6.1** Fetch final scores (`/v4/sports/{sport}/scores`), settle legs/templates.
 - **6.2** Calibration view (probability buckets vs. hit rate).
 
+## Epic 7 — Kupon generatoru + təkrar qaydası (owner request 2026-10-21)
+- **7.1** No-repeat rule: Sabit/Balanslı/Riskli never share a match; saved coupons (CUSTOM, GENERATED) block their
+  not-started matches everywhere, except selections with probability > `repeatAllowedAbove` (0.70).
+- **7.2** Coupon generator at the top of Kuponlar: 3 modes (Hədəf — linked odds ⇄ probability; Aralıq — min odds + min
+  probability; Real əmsal — min best-bookmaker odds + min probability), leg count chosen automatically, "Yadda saxla".
+  Fərdi kupon builder stays unchanged (to be reworked later).
+
 ## Questions for the owner (block coding until answered)
 1. Do you already have an `ODDS_API_KEY` (free tier)? Story 1.1 needs one call to `/v4/sports`.
 2. Approve the ➕ schema additions (Template.status/settledAt, TemplateLeg.result, ApiCallLog)?

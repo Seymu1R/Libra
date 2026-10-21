@@ -1,6 +1,6 @@
 # Açıq məsələlər
 
-Son yenilənmə: **2026-10-20**. Həll olunan məsələ `[x]` ilə işarələnir, tarix və qısa izah əlavə olunur (silinmir).
+Son yenilənmə: **2026-10-21**. Həll olunan məsələ `[x]` ilə işarələnir, tarix və qısa izah əlavə olunur (silinmir).
 
 ## 🔴 Bloklayan — API açarı gəldikdən sonra
 
@@ -17,7 +17,7 @@ Son yenilənmə: **2026-10-20**. Həll olunan məsələ `[x]` ilə işarələnir
 
 ## 🟡 Sahibinin qərarı lazımdır
 
-- [ ] **5. Kupon şablonları üst-üstə düşür.** Greedy seçim + ikili şans + `maxLegs`-ə qədər doldurma birlikdə belə nəticə verir:
+- [x] **5. Kupon şablonları üst-üstə düşür.** ✅ 2026-10-21 həll olundu: sahibi (b) variantını seçdi — Sabit/Balanslı/Riskli matç paylaşmır (Story 7.1). Test datasında: 77,2% / 60,1% / 25,0%. Köhnə izah: Greedy seçim + ikili şans + `maxLegs`-ə qədər doldurma birlikdə belə nəticə verir:
   Riskli ⊇ Balanslı ⊇ Sabit, yəni hamısı eyni ən yüksək ehtimallı ikili şans seçimlərindən ibarətdir.
   Test datasında: Sabit 77,2% · Balanslı 69,2% · Riskli 53,9%. Seçimlər eyni matçlardandır, sadəcə sayı fərqlidir.
   Variantlar:
@@ -47,8 +47,14 @@ Son yenilənmə: **2026-10-20**. Həll olunan məsələ `[x]` ilə işarələnir
   Playwright ilə əsas axın üçün test yazmaq olar: sinxron → matçlar → kupon → fərdi kupon.
 - [ ] **10. `npm audit`: 5 yüksək səviyyəli xəbərdarlıq.** Hamısı yalnız inkişaf alətlərindədir (`eslint-config-next` → `fast-glob` → `micromatch` → `braces`).
   İşləyən tətbiqə düşmür. `eslint-config-next` yeniləndikdə yenidən bax.
-- [ ] **11. Port 3000 məşğul ola bilər.** Seymur-un kompüterində 3000-i `rifah-api-gateway` tutur.
+- [x] **11. Port 3000 məşğul ola bilər.** ✅ 2026-10-21: port 4019-a sabitləndi (`npm run dev` / `npm start`). Köhnə izah: Seymur-un kompüterində 3000-i `rifah-api-gateway` tutur.
   Belə olanda Next özü başqa port seçir (məs. 3004), ona görə terminalda göstərilən linkə bax.
+
+- [ ] **15. Fərdi kupon bölməsinin yenilənməsi.** Sahibi bu bölməni sonra yeniləmək istəyir (2026-10-21).
+  Hazırda təkrar qaydası bu bölməyə tətbiq olunmur: istənilən matçı seçmək olur. Amma burada saxlanan kuponlar da matçları bloklayır.
+- [ ] **16. Generatorun "ən az seçim" xüsusiyyəti.** Aşağı hədəfə (məs. 10%) generator 2 seçimlə çatmağa çalışır, yəni hər seçim ~30% olur.
+  Sahibi daha çox, amma daha yüksək ehtimallı seçim istəsə, `GENERATOR.minLegs` / `minLegProbability` (`lib/config.ts`) dəyişdirilə bilər
+  və ya seçim sayı üçün input əlavə oluna bilər.
 
 ## ⚪ Gələcək (Epic 6 — Phase 2)
 

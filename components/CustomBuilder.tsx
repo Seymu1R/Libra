@@ -65,22 +65,22 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
   return (
     <section>
       <h2 className="text-lg font-semibold">Fərdi kupon</h2>
-      <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mb-4 text-sm text-muted">
         Seçimləri özünüz edin — hər matçdan bir seçim. Ehtimal və ədalətli əmsal dərhal hesablanır.
       </p>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="max-h-[640px] space-y-2 overflow-y-auto pr-1">
-          {matches.length === 0 && <p className="text-sm text-zinc-500">Başlamamış analiz edilmiş matç yoxdur.</p>}
+          {matches.length === 0 && <p className="text-sm text-muted">Başlamamış analiz edilmiş matç yoxdur.</p>}
           {matches.map((ms) => {
             const m = ms[0]!;
             return (
-              <div key={m.matchId} className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+              <div key={m.matchId} className="rounded-lg border border-border bg-surface p-3">
                 <div className="mb-2 flex flex-wrap justify-between gap-2 text-sm">
                   <span className="font-medium">
                     {m.homeTeam} — {m.awayTeam}
                   </span>
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-muted">
                     {competitionName(m.competition)} · <span className="tabular">{formatBaku(m.commenceTime)}</span>
                   </span>
                 </div>
@@ -94,12 +94,13 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
                         type="button"
                         onClick={() => toggle(l)}
                         title={`${MARKET_LABEL[l.market]} · fikir ayrılığı ${formatPoints(l.disagreement)}`}
-                        className={`tabular rounded-md border px-2 py-1 text-xs transition ${
+                        aria-pressed={active}
+                        className={`tabular min-h-8 rounded-md border px-2.5 py-1 text-xs transition-colors duration-150 ${
                           active
-                            ? "border-accent-600 bg-accent-600 text-white"
+                            ? "border-primary bg-primary text-on-primary"
                             : risky
-                              ? "border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
-                              : "border-zinc-300 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                              ? "border-danger-border text-danger hover:bg-danger-soft"
+                              : "border-border-strong hover:bg-surface-2"
                         }`}
                       >
                         {SELECTION_LABEL[l.selection]} <span className="opacity-75">{formatPercent(l.probability)}</span>
@@ -112,7 +113,7 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
           })}
         </div>
 
-        <aside className="h-fit rounded-xl border border-zinc-200 bg-white p-5 lg:sticky lg:top-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <aside className="h-fit rounded-xl border border-border bg-surface p-5 lg:sticky lg:top-4">
           <h3 className="font-semibold">Seçilmiş: {selectedLegs.length}</h3>
           <ul className="my-3 space-y-1 text-sm">
             {selectedLegs.map((l) => (
@@ -124,23 +125,23 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
               </li>
             ))}
           </ul>
-          <div className="grid grid-cols-2 gap-3 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+          <div className="grid grid-cols-2 gap-3 border-t border-border pt-3">
             <div>
-              <div className="text-xs text-zinc-500">Ümumi ehtimal</div>
+              <div className="text-xs text-muted">Ümumi ehtimal</div>
               <div className="tabular text-2xl font-semibold">{combined ? formatPercent(combined.combinedProbability) : "—"}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-zinc-500">Ədalətli əmsal</div>
+              <div className="text-xs text-muted">Ədalətli əmsal</div>
               <div className="tabular text-2xl font-semibold">{combined ? formatOdds(combined.fairOdds) : "—"}</div>
             </div>
           </div>
-          <p className="mt-3 text-[11px] text-zinc-500">Hasil nəticələrin asılı olmadığını fərz edir.</p>
+          <p className="mt-3 text-xs text-muted">Hasil nəticələrin asılı olmadığını fərz edir.</p>
           <div className="mt-4 flex gap-2">
             <button
               type="button"
               onClick={save}
               disabled={selectedLegs.length === 0 || saving}
-              className="flex-1 rounded-md bg-accent-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-700"
+              className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-on-primary transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-subtle"
             >
               Yadda saxla
             </button>
@@ -148,12 +149,12 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
               type="button"
               onClick={() => setPicked({})}
               disabled={selectedLegs.length === 0}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-zinc-700"
+              className="rounded-md border border-border-strong px-3 py-2 text-sm transition-colors duration-150 hover:bg-surface-2 disabled:opacity-50"
             >
               Təmizlə
             </button>
           </div>
-          {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+          {error && <p className="mt-2 text-xs text-danger">{error}</p>}
         </aside>
       </div>
     </section>

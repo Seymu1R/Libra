@@ -18,10 +18,9 @@ export function NavLinks() {
           <Link
             key={l.href}
             href={l.href}
-            className={`rounded-md px-3 py-1.5 font-medium transition ${
-              active
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            aria-current={active ? "page" : undefined}
+            className={`rounded-md px-3 py-2 font-medium transition-colors duration-150 ${
+              active ? "bg-primary-soft text-primary-fg" : "text-muted hover:bg-surface-2 hover:text-fg"
             }`}
           >
             {l.label}

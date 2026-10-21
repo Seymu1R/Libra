@@ -61,11 +61,30 @@ export const TEMPLATES = {
   maxDisagreement: 0.08,
   /** Include derived double-chance selections in auto templates. */
   includeDoubleChance: true,
+  /**
+   * A match already used in a saved coupon may appear again only with a selection whose probability
+   * is strictly above this. Auto templates never share a match with each other (no exception).
+   */
+  repeatAllowedAbove: 0.7,
   rules: [
     { type: "SABIT", label: "Sabit", minLegs: 2, maxLegs: 3, minLegProbability: 0.7 },
     { type: "BALANSLI", label: "Balanslı", minLegs: 3, maxLegs: 4, minLegProbability: 0.6 },
     { type: "RISKLI", label: "Riskli", minLegs: 4, maxLegs: 6, minLegProbability: 0.5 },
   ] satisfies TemplateRule[],
+} as const;
+
+/** Saved (user-kept) coupon types. Their matches are blocked for new coupons — see `repeatAllowedAbove`. */
+export const SAVED_TEMPLATE_TYPES = ["CUSTOM", "GENERATED"] as const;
+export type SavedTemplateType = (typeof SAVED_TEMPLATE_TYPES)[number];
+
+export const GENERATOR = {
+  /** The generator picks the leg count itself, within these bounds (fewest legs that hit the goal). */
+  minLegs: 2,
+  maxLegs: 8,
+  /** Legs below this probability are never used (avoids long-shot legs). */
+  minLegProbability: 0.2,
+  /** "Hədəf" mode: accepted when the coupon probability is within ±this (relative) of the target. */
+  targetTolerance: 0.05,
 } as const;
 
 export const DISPLAY = {

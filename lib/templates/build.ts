@@ -28,6 +28,15 @@ export interface BuildOptions {
   includeDoubleChance: boolean;
   /** Matches starting at or before this instant are excluded. */
   now: Date;
+  /** Matches used by saved coupons. */
+  blocked?: ReadonlySet<string>;
+  /** A blocked match is still allowed with a selection whose probability is strictly above this. */
+  repeatAllowedAbove?: number;
+}
+
+/** Saved-coupon repeat rule: a blocked match may reappear only with a high-probability selection. */
+export function allowedDespiteBlock(leg: Pick<Leg, "matchId" | "probability">, blocked: ReadonlySet<string> | undefined, repeatAllowedAbove = 1): boolean {
+  return !blocked?.has(leg.matchId) || leg.probability > repeatAllowedAbove;
 }
 
 const MARKET_ORDER: Record<Market, number> = { "1X2": 0, OU25: 1, DC: 2 };
@@ -72,17 +81,21 @@ export function allLegs(analyses: readonly MatchAnalysis[], now: Date): Leg[] {
 /**
  * Greedy, deterministic: best eligible selection per match (one leg per match — same-match
  * selections are correlated), then the top `maxLegs` across matches. Null if fewer than `minLegs`.
+ * Matches in `exclude` are never used; matches in `opts.blocked` follow the repeat rule.
  */
 export function buildTemplate(
   analyses: readonly MatchAnalysis[],
   rule: TemplateRule,
   opts: BuildOptions,
+  exclude: ReadonlySet<string> = new Set(),
 ): BuiltTemplate | null {
   const eligible = allLegs(analyses, opts.now).filter(
     (l) =>
       l.probability >= rule.minLegProbability &&
       l.disagreement <= opts.maxDisagreement &&
-      (opts.includeDoubleChance || l.market !== "DC"),
+      (opts.includeDoubleChance || l.market !== "DC") &&
+      !exclude.has(l.matchId) &&
+      allowedDespiteBlock(l, opts.blocked, opts.repeatAllowedAbove),
   );
 
   const bestPerMatch = new Map<string, Leg>();
@@ -97,10 +110,16 @@ export function buildTemplate(
   return { type: rule.type, legs, ...combined };
 }
 
+/** Built in rule order; a match used by one auto template is not used by the next ones. */
 export function buildTemplates(
   analyses: readonly MatchAnalysis[],
   rules: readonly TemplateRule[],
   opts: BuildOptions,
 ): { rule: TemplateRule; template: BuiltTemplate | null }[] {
-  return rules.map((rule) => ({ rule, template: buildTemplate(analyses, rule, opts) }));
+  const used = new Set<string>();
+  return rules.map((rule) => {
+    const template = buildTemplate(analyses, rule, opts, used);
+    template?.legs.forEach((l) => used.add(l.matchId));
+    return { rule, template };
+  });
 }

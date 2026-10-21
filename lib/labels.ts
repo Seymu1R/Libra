@@ -22,6 +22,7 @@ export const TEMPLATE_LABEL: Record<string, string> = {
   BALANSLI: "Balanslı",
   RISKLI: "Riskli",
   CUSTOM: "Fərdi",
+  GENERATED: "Generator",
 };
 
 export const SYNC_STATUS_LABEL: Record<string, string> = {

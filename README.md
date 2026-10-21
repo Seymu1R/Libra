@@ -16,7 +16,7 @@ hesablayan və yalnız baxış üçün **kupon şablonları** quran şəxsi, lok
 npm install                 # asılılıqlar + Prisma client
 cp .env.example .env        # sonra .env faylını redaktə edin
 npx prisma migrate dev      # SQLite bazasını yaradır (prisma/dev.db)
-npm run dev                 # http://localhost:3000
+npm run dev                 # http://localhost:4019
 ```
 
 ### `.env` dəyişənləri

@@ -4,7 +4,9 @@ import { createTestDb } from "@/test/test-db";
 import { analyzeSync } from "./analysis.service";
 import { MockOddsClient, OddsApiError, type OddsClient } from "./odds-client";
 import { getCooldownUntil, parseCompetitionResults, runSync, SyncBlockedError } from "./sync.service";
-import { listTemplates, regenerateTemplates, saveCustomTemplate } from "./templates.service";
+import { blockedMatchIds, deleteCustomTemplate, listTemplates, regenerateTemplates, saveCustomTemplate } from "./templates.service";
+import { allLegs } from "@/lib/templates/build";
+import { TEMPLATES } from "@/lib/config";
 
 const NOW = new Date("2026-10-20T12:00:00Z");
 let db: PrismaClient;
@@ -106,5 +108,38 @@ describe("analysis + templates on stored data", () => {
         { matchId: match.id, market: "DC", selection: "1X" },
       ], NOW),
     ).rejects.toThrow(/yalnız bir/);
+  });
+
+  it("saved coupons block their matches for auto templates and generated coupons (> repeatAllowedAbove excepted)", async () => {
+    const sync = await runSync(undefined, { db, client: mock(), now: () => NOW });
+    const legs = allLegs(await analyzeSync(db, sync.id), NOW);
+    // a low-probability pick → its match is blocked except for > 70% selections
+    const low = legs.find((l) => l.probability < 0.5 && l.disagreement <= TEMPLATES.maxDisagreement)!;
+    const saved = await saveCustomTemplate(db, sync.id, [low], NOW);
+    expect([...(await blockedMatchIds(db, NOW))]).toEqual([low.matchId]);
+
+    const auto = (await listTemplates(db, sync.id)).filter((t) => !["CUSTOM", "GENERATED"].includes(t.type));
+    for (const l of auto.flatMap((t) => t.legs).filter((l) => l.matchId === low.matchId)) {
+      expect(l.probability).toBeGreaterThan(TEMPLATES.repeatAllowedAbove);
+    }
+    // auto templates never share a match with each other
+    const autoMatches = auto.flatMap((t) => t.legs.map((l) => l.matchId));
+    expect(new Set(autoMatches).size).toBe(autoMatches.length);
+
+    const sameMatchLow = legs.find((l) => l.matchId === low.matchId && l.probability <= TEMPLATES.repeatAllowedAbove)!;
+    await expect(saveCustomTemplate(db, sync.id, [sameMatchLow], NOW, "GENERATED")).rejects.toThrow(/saxlanmış kupondadır/);
+    const sameMatchHigh = legs.find((l) => l.matchId === low.matchId && l.probability > TEMPLATES.repeatAllowedAbove);
+    if (sameMatchHigh) await expect(saveCustomTemplate(db, sync.id, [sameMatchHigh], NOW, "GENERATED")).resolves.toBeTruthy();
+
+    await deleteCustomTemplate(db, saved.id, sync.id, NOW);
+    expect((await blockedMatchIds(db, NOW)).has(low.matchId)).toBe(Boolean(sameMatchHigh));
+  });
+
+  it("saved coupons stay listed after a new sync", async () => {
+    const first = await runSync(["soccer_epl"], { db, client: mock(), now: () => NOW });
+    const leg = allLegs(await analyzeSync(db, first.id), NOW)[0]!;
+    await saveCustomTemplate(db, first.id, [leg], NOW, "GENERATED");
+    const second = await runSync(["soccer_epl"], { db, client: mock(), now: () => NOW });
+    expect((await listTemplates(db, second.id)).some((t) => t.type === "GENERATED")).toBe(true);
   });
 });

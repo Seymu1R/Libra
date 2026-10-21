@@ -8,7 +8,7 @@
 # Each story = story file here + spec file in _bmad-output/specs/
 
 generated: 2026-10-20
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 # 2026-10-20: Epics 0–5 implemented in one pass (owner approved plan). 1-1 live verification blocked on ODDS_API_KEY.
 project: Tərəzi
 
@@ -44,3 +44,7 @@ development_status:
   epic-6: backlog  # Phase 2 — not started
   6-1-scores-and-settlement: backlog
   6-2-calibration-view: backlog
+
+  epic-7: in-progress  # 2026-10-21 owner request: coupon generator + no-repeat rule
+  7-1-no-repeat-rule: review
+  7-2-coupon-generator: review

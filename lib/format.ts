@@ -10,3 +10,9 @@ export const formatPercent = (p: number) => `${fixed(p * 100, 1)}%`;
 export const formatOdds = (o: number) => fixed(o, 2);
 /** Disagreement in percentage points: 0.031 → "3,1 b." */
 export const formatPoints = (d: number) => `${fixed(d * 100, 1)} b.`;
+
+/** Parses user input with comma or dot decimals: "2,50" → 2.5. NaN when not a number. */
+export function parseDecimal(input: string): number {
+  const s = input.trim().replace(",", ".");
+  return /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
+}

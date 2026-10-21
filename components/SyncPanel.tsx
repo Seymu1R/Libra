@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SYNC_STATUS_LABEL } from "@/lib/labels";
 import { formatBaku } from "@/lib/time";
 import type { AppStatus } from "@/server/status.service";
@@ -31,6 +31,7 @@ export function SyncPanel({ status, competitions }: Props) {
   const now = useNow(15_000);
   const [selected, setSelected] = useState<string[]>(competitions.map((c) => c.key));
   const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
@@ -65,6 +66,21 @@ export function SyncPanel({ status, competitions }: Props) {
     }
   }
 
+  // Close the competition menu on outside click or Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   const toggle = (key: string) =>
     setSelected((s) => (s.includes(key) ? s.filter((k) => k !== key) : [...s, key]));
 
@@ -72,41 +88,42 @@ export function SyncPanel({ status, competitions }: Props) {
     <div className="flex flex-col gap-2 md:items-end">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         {status.mock && (
-          <span className="rounded bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-800 dark:bg-violet-900/50 dark:text-violet-200">
+          <span className="rounded bg-info-bg px-2 py-0.5 text-xs font-medium text-info-fg">
             Test məlumatı
           </span>
         )}
-        <span className="text-zinc-500 dark:text-zinc-400">
+        <span className="text-muted">
           Son sinxron:{" "}
-          <span className="tabular text-zinc-900 dark:text-zinc-100">
+          <span className="tabular text-fg">
             {status.lastSync ? formatBaku(status.lastSync.startedAt) : "—"}
           </span>
         </span>
-        <span className="text-zinc-500 dark:text-zinc-400">
+        <span className="text-muted">
           Kredit:{" "}
-          <span className="tabular text-zinc-900 dark:text-zinc-100">{status.creditsRemaining ?? "—"}</span>
+          <span className="tabular text-fg">{status.creditsRemaining ?? "—"}</span>
         </span>
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            aria-expanded={open}
+            className="rounded-md border border-border-strong px-3 py-2 text-fg transition-colors duration-150 hover:bg-surface-2"
           >
             Turnirlər ({selected.length}/{competitions.length})
           </button>
           {open && (
-            <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-border bg-surface p-2 shadow-lg">
               <div className="mb-1 flex justify-between px-2 text-xs">
-                <button type="button" className="text-accent-600" onClick={() => setSelected(competitions.map((c) => c.key))}>
+                <button type="button" className="text-primary-fg hover:underline" onClick={() => setSelected(competitions.map((c) => c.key))}>
                   Hamısı
                 </button>
-                <button type="button" className="text-zinc-500" onClick={() => setSelected([])}>
+                <button type="button" className="text-muted hover:underline" onClick={() => setSelected([])}>
                   Heç biri
                 </button>
               </div>
               {competitions.map((c) => (
-                <label key={c.key} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                  <input type="checkbox" checked={selected.includes(c.key)} onChange={() => toggle(c.key)} className="accent-emerald-600" />
+                <label key={c.key} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-surface-2">
+                  <input type="checkbox" checked={selected.includes(c.key)} onChange={() => toggle(c.key)} className="accent-primary" />
                   {c.name}
                 </label>
               ))}
@@ -117,23 +134,23 @@ export function SyncPanel({ status, competitions }: Props) {
           type="button"
           onClick={sync}
           disabled={disabled}
-          className="rounded-md bg-accent-600 px-4 py-1.5 font-medium text-white transition hover:bg-accent-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-400"
+          className="rounded-md bg-primary px-4 py-2 font-medium text-on-primary transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-subtle"
         >
           {busy || status.running ? "Sinxron gedir…" : "Sinxron et"}
         </button>
       </div>
       {cooling && (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-muted">
           Gözləmə: növbəti sinxron {Math.ceil(cooldownMs / 60_000)} dəq sonra ({formatBaku(status.cooldownUntil!)})
         </p>
       )}
       {message && (
-        <p className={`text-xs ${message.kind === "ok" ? "text-accent-700 dark:text-accent-500" : "text-red-600 dark:text-red-400"}`}>
+        <p className={`text-xs ${message.kind === "ok" ? "text-highlight" : "text-danger"}`}>
           {message.text}
         </p>
       )}
       {status.lastSync && status.lastSync.results.some((r) => r.status === "failed") && !message && (
-        <p className="text-xs text-red-600 dark:text-red-400">
+        <p className="text-xs text-danger">
           Son sinxronda xəta: {status.lastSync.results.filter((r) => r.status === "failed").map((r) => r.key).join(", ")}
         </p>
       )}

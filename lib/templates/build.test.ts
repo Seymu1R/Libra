@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MatchAnalysis, SelectionAnalysis } from "../analysis/types";
 import type { TemplateRule } from "../config";
-import { buildTemplate } from "./build";
+import { buildTemplate, buildTemplates } from "./build";
 
 const NOW = new Date("2026-10-20T12:00:00Z");
 const FUTURE = "2026-10-21T19:00:00Z";
@@ -86,5 +86,32 @@ describe("buildTemplate", () => {
     const t2 = buildTemplate([...input].reverse(), RULE, OPTS)!;
     expect(t1.legs.map((l) => l.matchId)).toEqual(["c", "a", "b"]);
     expect(t2.legs.map((l) => l.matchId)).toEqual(["c", "a", "b"]);
+  });
+
+  it("blocked (saved-coupon) matches reappear only with a selection above repeatAllowedAbove", () => {
+    const input = [m("a", [sel("DC", "1X", 0.75), sel("1X2", "HOME", 0.7)]), m("b", [sel("DC", "1X", 0.72)]), m("c", [sel("DC", "1X", 0.71)])];
+    const opts = { ...OPTS, blocked: new Set(["a", "b"]), repeatAllowedAbove: 0.73 };
+    const t = buildTemplate(input, RULE, opts)!;
+    // a:1X (0.75) is above the threshold → allowed; b (0.72) is not; a:HOME is never needed.
+    expect(t.legs.map((l) => `${l.matchId}:${l.selection}`)).toEqual(["a:1X", "c:1X"]);
+  });
+});
+
+describe("buildTemplates", () => {
+  const RULES: TemplateRule[] = [
+    { type: "SABIT", label: "Sabit", minLegs: 2, maxLegs: 2, minLegProbability: 0.7 },
+    { type: "BALANSLI", label: "Balanslı", minLegs: 2, maxLegs: 2, minLegProbability: 0.6 },
+    { type: "RISKLI", label: "Riskli", minLegs: 2, maxLegs: 2, minLegProbability: 0.5 },
+  ];
+  const input = ["a", "b", "c", "d", "e", "f"].map((id, i) => m(id, [sel("DC", "1X", 0.95 - i * 0.04)]));
+
+  it("never shares a match between auto templates, even above repeatAllowedAbove", () => {
+    const built = buildTemplates(input, RULES, { ...OPTS, repeatAllowedAbove: 0.7 });
+    expect(built.map((b) => b.template!.legs.map((l) => l.matchId))).toEqual([["a", "b"], ["c", "d"], ["e", "f"]]);
+  });
+
+  it("returns null for a later template when earlier ones used up the matches", () => {
+    const built = buildTemplates(input.slice(0, 5), RULES, OPTS);
+    expect(built[2]!.template).toBeNull();
   });
 });

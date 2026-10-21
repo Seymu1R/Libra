@@ -4,7 +4,7 @@ import { TEMPLATES } from "@/lib/config";
 import { allLegs } from "@/lib/templates/build";
 import { analyzeSync, latestDataSync } from "@/server/analysis.service";
 import { db } from "@/server/db";
-import { listTemplates } from "@/server/templates.service";
+import { blockedMatchIds, listTemplates } from "@/server/templates.service";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +12,12 @@ export default async function TemplatesPage() {
   const sync = await latestDataSync(db);
   if (!sync) return <EmptyState />;
 
-  const [templates, analyses] = await Promise.all([listTemplates(db, sync.id), analyzeSync(db, sync.id)]);
   const now = new Date();
+  const [templates, analyses, blocked] = await Promise.all([
+    listTemplates(db, sync.id),
+    analyzeSync(db, sync.id),
+    blockedMatchIds(db, now),
+  ]);
 
   const dtos: TemplateDto[] = templates.map((t) => ({
     id: t.id,
@@ -40,6 +44,7 @@ export default async function TemplatesPage() {
       legs={allLegs(analyses, now)}
       rules={TEMPLATES.rules.map((r) => ({ ...r }))}
       maxDisagreement={TEMPLATES.maxDisagreement}
+      blockedMatchIds={[...blocked]}
     />
   );
 }
