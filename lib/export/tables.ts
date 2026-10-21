@@ -73,13 +73,17 @@ export interface ApiCallRow {
   requestsRemaining: number | null;
 }
 
-const API_MARKET: Record<string, string> = { h2h: "1X2", totals: "Üst/Alt" };
+const API_MARKET: Record<string, string> = { h2h: "Qalib / 1X2", totals: "Üst/Alt", spreads: "Fora" };
 
 /** API outcome → our selection label: team name → 1 / 2, "Draw" → X, Over/Under → Üst/Alt <line>. */
 function outcomeLabel(r: OddsRow): string {
   if (r.market === "h2h")
     return r.outcome === r.match.homeTeam ? "1" : r.outcome === r.match.awayTeam ? "2" : r.outcome === "Draw" ? "X" : r.outcome;
   if (r.market === "totals") return `${r.outcome === "Over" ? "Üst" : r.outcome === "Under" ? "Alt" : r.outcome} ${r.point ?? ""}`.trim();
+  if (r.market === "spreads") {
+    const side = r.outcome === r.match.homeTeam ? "1" : r.outcome === r.match.awayTeam ? "2" : r.outcome;
+    return r.point === null ? side : `${side} ${r.point > 0 ? "+" : ""}${r.point}`;
+  }
   return r.outcome;
 }
 
@@ -130,8 +134,8 @@ export function probabilityTable(analyses: readonly MatchAnalysis[], syncStarted
           a.homeTeam,
           a.awayTeam,
           MARKET_LABEL[m.market],
-          selectionLabel(m.market, s.selection),
-          describeSelection(m.market, s.selection, a.homeTeam, a.awayTeam),
+          selectionLabel(m.market, s.selection, m.line),
+          describeSelection(m.market, s.selection, a.homeTeam, a.awayTeam, m.line),
           s.probability,
           s.fairOdds,
           s.bestOdds?.price ?? null,

@@ -2,6 +2,28 @@
 
 Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, nə edildi, harada). Köhnə qeydlər dəyişdirilmir.
 
+## 2026-10-21 — Sessiya 2: header-in düzəldilməsi
+
+- Header iki sətrə bölündü:
+  - yuxarıda loqo, Matçlar / Kuponlar və tema;
+  - aşağıda solda Futbol / Basketbol, sağda status, Turnirlər, Sinxron et və Export.
+- Düymələr bir qrup kimi sətir dəyişir, ortadan bölünmür. 390 px enində üfüqi scroll yoxdur (əvvəl 2 px idi).
+- 1280, 1024, 768 və 390 px enlərində yoxlandı.
+
+## 2026-10-21 — Sessiya 2: basketbol / NBA (Story 8.1)
+
+- NBA əlavə olundu. Bazarlar:
+  - **Qalib** (1 / 2, əlavə vaxt daxil);
+  - **Fora** (məs. 1 -4.5);
+  - **Total xal** (məs. Üst 235.5).
+- Bukmekerlər fora və total üçün fərqli xətlər verir, ona görə ən çox bukmekerin verdiyi xətt götürülür.
+  Real datada: qalib 15/15, fora 11/15, total 9/15 matçda var.
+- Yuxarıda **Futbol / Basketbol** keçidi əlavə olundu. Matçlar, generator, sistemin təklifləri, fərdi kupon və saxlanmış kuponlar seçilmiş idmanı göstərir.
+  Kuponlar idmanları qarışdırmır, server də buna icazə vermir.
+- DB: `TemplateLeg.line` əlavə olundu (miqrasiya `template_leg_line`). NBA üçün mock fixture yaradıldı.
+- Real sinxron: 19 kredit (futbol 16 + NBA 3), 465 kredit qaldı.
+- **Yoxlama:** 95 test ✔ (+6) · tsc ✔ · eslint ✔. Real datada brauzerdə yoxlandı: masaüstü və mobil, gündüz və gecə.
+
 ## 2026-10-21 — Sessiya 2: datanın ixracı (Story 7.8)
 
 - Yuxarıda "Sinxron et"-in yanına **Export** düyməsi əlavə olundu. Seçimlər:

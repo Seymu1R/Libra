@@ -19,7 +19,7 @@ function m(id: string, selections: SelectionAnalysis[], extra: Partial<MatchAnal
     commenceTime: FUTURE,
     bookmakerCount: 10,
     skipped: false,
-    markets: [{ market: selections[0]!.market, bookmakerCount: 10, selections }],
+    markets: [{ market: selections[0]!.market, line: null, bookmakerCount: 10, selections }],
     ...extra,
   };
 }

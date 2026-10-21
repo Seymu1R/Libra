@@ -207,8 +207,8 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
                 </div>
                 <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-xs text-muted">
                   <span>
-                    {MARKET_LABEL[l.market]}: <strong>{selectionLabel(l.market, l.selection)}</strong> ·{" "}
-                    {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam)}
+                    {MARKET_LABEL[l.market]}: <strong>{selectionLabel(l.market, l.selection, l.line)}</strong> ·{" "}
+                    {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam, l.line)}
                     {l.bestOdds && (
                       <span className="text-highlight">
                         {" "}

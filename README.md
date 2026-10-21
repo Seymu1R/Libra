@@ -1,6 +1,6 @@
 # ⚖️ Tərəzi
 
-Futbol üzrə bir çox bukmekerin matçdan əvvəlki əmsallarını yükləyən, onlardan **bazarın konsensus (marjasız) ehtimallarını**
+Futbol və basketbol (NBA) üzrə bir çox bukmekerin matçdan əvvəlki əmsallarını yükləyən, onlardan **bazarın konsensus (marjasız) ehtimallarını**
 hesablayan və yalnız baxış üçün **kupon şablonları** quran şəxsi, lokal veb tətbiq.
 
 > Tətbiq mərc qoymur, canlı (in-play) funksiyası yoxdur. Ehtimallar bazarın təxminidir, zəmanət deyil.
@@ -43,7 +43,7 @@ npm run dev                 # http://localhost:4019
 - `/v4/sports` və `/v4/sports/{turnir}/events` — **pulsuz**.
 - `/v4/sports/{turnir}/odds` — `bazar sayı × region sayı` = `2 × 1` = **2 kredit / turnir**.
 - Tətbiq əvvəlcə pulsuz `events` sorğusu ilə yoxlayır: həmin turnirdə yaxın 7 gündə matç yoxdursa, pullu sorğu göndərilmir.
-- Tam sinxron (8 turnir) ≈ **16 kredit**. Pulsuz planla ayda ~30 tam sinxron.
+- Tam sinxron (8 futbol turniri + NBA) ≈ **19 kredit** (futbol 2, NBA 3 kredit). NBA lazım deyilsə, "Turnirlər"-dən çıxarın. Pulsuz planla ayda ~30 tam sinxron.
 - İki sinxron arasında ən azı 30 dəqiqə gözləmə var (`lib/config.ts`).
 
 ## İstifadə

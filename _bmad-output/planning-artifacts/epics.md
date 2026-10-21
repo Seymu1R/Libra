@@ -60,3 +60,7 @@ Each epic = one phase from the brief. Each story gets a story file in
 3. Greedy fills up to `maxLegs` (e.g. Sabit → 3 legs if possible). OK, or prefer `minLegs`?
 4. Default `MAX_DISAGREEMENT` threshold — proposal **0.08** (8 percentage points).
 5. Double chance will dominate Sabit (DC probabilities are naturally high). Keep DC in auto templates, or restrict it?
+
+## Epic 8 — Basketbol
+
+- **8.1** NBA: winner / spread / total at the main line; Futbol / Basketbol switch; coupons never mix sports.

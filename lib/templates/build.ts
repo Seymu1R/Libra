@@ -9,6 +9,8 @@ export interface Leg {
   awayTeam: string;
   commenceTime: string;
   market: Market;
+  /** Basketball spread / total line (see MarketAnalysis.line); absent otherwise. */
+  line?: number | null;
   selection: Selection;
   probability: number;
   disagreement: number;
@@ -39,11 +41,14 @@ export function allowedDespiteBlock(leg: Pick<Leg, "matchId" | "probability">, b
   return !blocked?.has(leg.matchId) || leg.probability > repeatAllowedAbove;
 }
 
-const MARKET_ORDER: Record<Market, number> = { "1X2": 0, OU25: 1, OU35: 1, OU45: 1, DC: 2 };
+const MARKET_ORDER: Record<Market, number> = { "1X2": 0, ML: 0, OU25: 1, OU35: 1, OU45: 1, SPR: 1, TOT: 1, DC: 2 };
 
-/** Order-independent identity of a coupon's selections — equal for the same picks. */
-export function couponSignature(legs: readonly { matchId: string; market: string; selection: string }[]): string {
-  return legs.map((l) => `${l.matchId}|${l.market}|${l.selection}`).sort().join(";");
+/** Order-independent identity of a coupon's selections — equal for the same picks (and the same basketball line). */
+export function couponSignature(legs: readonly { matchId: string; market: string; selection: string; line?: number | null }[]): string {
+  return legs
+    .map((l) => `${l.matchId}|${l.market}|${l.selection}|${l.line ?? ""}`)
+    .sort()
+    .join(";");
 }
 
 /** probability desc → disagreement asc → market → selection → match id. Fully deterministic. */
@@ -71,6 +76,7 @@ export function allLegs(analyses: readonly MatchAnalysis[], now: Date): Leg[] {
           awayTeam: m.awayTeam,
           commenceTime: m.commenceTime,
           market: s.market,
+          line: market.line,
           selection: s.selection,
           probability: s.probability,
           disagreement: s.disagreement,

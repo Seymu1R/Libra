@@ -2,29 +2,30 @@ import Link from "next/link";
 import { COMPETITIONS } from "@/lib/config";
 import { db } from "@/server/db";
 import { getStatus } from "@/server/status.service";
+import { currentSport } from "@/app/current-sport";
 import { NavLinks } from "./NavLinks";
+import { SportSwitch } from "./SportSwitch";
 import { SyncPanel } from "./SyncPanel";
 import { ThemeToggle } from "./ThemeToggle";
 
 export async function Header() {
-  const status = await getStatus(db);
+  const [status, sport] = await Promise.all([getStatus(db), currentSport()]);
   return (
     <header className="border-b border-border bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-4 md:gap-6">
+      <div className="mx-auto max-w-6xl px-4">
+        {/* Row 1: brand, pages, theme */}
+        <div className="flex items-center gap-2 py-3 sm:gap-4 md:gap-6">
           <Link href="/" className="flex items-center gap-2 text-xl font-semibold tracking-tight">
             <ScaleIcon />
             Tərəzi
           </Link>
           <NavLinks />
-          <ThemeToggle className="ml-auto md:hidden" />
+          <ThemeToggle className="ml-auto" />
         </div>
-        <div className="flex items-start gap-3">
-          <SyncPanel
-            status={status}
-            competitions={COMPETITIONS.map((c) => ({ key: c.key, name: c.name }))}
-          />
-          <ThemeToggle className="hidden md:flex" />
+        {/* Row 2: what is shown (sport) on the left, data actions on the right */}
+        <div className="flex flex-col gap-3 border-t border-border py-3 lg:flex-row lg:items-start lg:justify-between">
+          <SportSwitch sport={sport} className="self-start" />
+          <SyncPanel status={status} competitions={COMPETITIONS.map((c) => ({ key: c.key, name: c.name }))} />
         </div>
       </div>
     </header>

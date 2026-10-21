@@ -86,11 +86,44 @@ describe("analysis + templates on stored data", () => {
     expect(second).toEqual(first);
 
     const stored = await listTemplates(db, sync.id);
-    expect(stored.map((t) => t.type).sort()).toEqual(["BALANSLI", "RISKLI", "SABIT"]);
+    // Built per sport: soccer has all three; templates never mix soccer and basketball.
+    const soccer = stored.filter((t) => t.legs.every((l) => l.match.competition.startsWith("soccer_")));
+    expect(soccer.map((t) => t.type).sort()).toEqual(["BALANSLI", "RISKLI", "SABIT"]);
     for (const t of stored) {
+      expect(new Set(t.legs.map((l) => l.match.competition.split("_")[0])).size).toBe(1);
       expect(new Set(t.legs.map((l) => l.matchId)).size).toBe(t.legs.length);
       expect(t.fairOdds).toBeCloseTo(1 / t.combinedProbability, 9);
     }
+  });
+
+  it("analyses NBA from the mock fixtures and stores its spread / total lines on saved legs", async () => {
+    const sync = await runSync(["basketball_nba"], { db, client: mock(), now: () => NOW });
+    const nba = (await analyzeSync(db, sync.id)).filter((a) => !a.skipped);
+    expect(nba.length).toBeGreaterThan(2);
+    const withSpread = nba.find((a) => a.markets.some((m) => m.market === "SPR"))!;
+    const spr = withSpread.markets.find((m) => m.market === "SPR")!;
+    expect(spr.line! % 1).toBe(-0.5);
+    const saved = await saveCustomTemplate(db, sync.id, [{ matchId: withSpread.id, market: "SPR", selection: "AWAY" }], NOW);
+    const leg = (await listTemplates(db, sync.id)).find((t) => t.id === saved.id)!.legs[0]!;
+    expect(leg.line).toBe(spr.line);
+  });
+
+  it("rejects a coupon mixing soccer and basketball", async () => {
+    const sync = await runSync(["soccer_epl", "basketball_nba"], { db, client: mock(), now: () => NOW });
+    const analyses = (await analyzeSync(db, sync.id)).filter((a) => !a.skipped);
+    const soccer = analyses.find((a) => a.competition === "soccer_epl")!;
+    const nba = analyses.find((a) => a.competition === "basketball_nba")!;
+    await expect(
+      saveCustomTemplate(
+        db,
+        sync.id,
+        [
+          { matchId: soccer.id, market: "1X2", selection: "HOME" },
+          { matchId: nba.id, market: "ML", selection: "HOME" },
+        ],
+        NOW,
+      ),
+    ).rejects.toThrow("Futbol və basketbol eyni kuponda ola bilməz.");
   });
 
   it("saves custom templates with server-side probabilities and keeps them on regenerate", async () => {
@@ -103,10 +136,15 @@ describe("analysis + templates on stored data", () => {
     expect((await listTemplates(db, sync.id)).some((t) => t.type === "CUSTOM")).toBe(true);
 
     await expect(
-      saveCustomTemplate(db, sync.id, [
-        { matchId: match.id, market: "1X2", selection: "HOME" },
-        { matchId: match.id, market: "DC", selection: "1X" },
-      ], NOW),
+      saveCustomTemplate(
+        db,
+        sync.id,
+        [
+          { matchId: match.id, market: "1X2", selection: "HOME" },
+          { matchId: match.id, market: "DC", selection: "1X" },
+        ],
+        NOW,
+      ),
     ).rejects.toThrow(/yalnız bir/);
   });
 

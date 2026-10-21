@@ -44,7 +44,7 @@ Dependency direction: `app → server → lib`. `lib` never imports from `server
 | `GET /v4/sports/{sport}/events?commenceTimeFrom&commenceTimeTo` | free | per competition: are there matches in the window? If 0 → **skip the paid odds call** |
 | `GET /v4/sports/{sport}/odds?regions=eu&markets=h2h,totals&oddsFormat=decimal&commenceTimeFrom&commenceTimeTo` | expected markets × regions = **2 credits / competition** | the actual snapshot |
 
-Full sync of 8 competitions ≈ up to 16 credits (free tier is 500/month — to be verified).
+Full sync of 8 competitions ≈ up to 16 credits (free tier is 500/month — to be verified). ➕ Story 8.1: + NBA (`h2h,spreads,totals`) = 3 → 19 credits.
 Every call logs `x-requests-remaining / used / last` to `ApiCallLog`; latest remaining is shown in the header.
 All responses parsed with **zod**; a shape mismatch fails that competition (not the whole sync) with a clear error.
 

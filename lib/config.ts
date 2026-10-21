@@ -4,22 +4,40 @@ export const ODDS_API_BASE_URL = "https://api.the-odds-api.com";
 
 export const ODDS_REQUEST = {
   regions: "eu",
-  markets: "h2h,totals",
   oddsFormat: "decimal",
 } as const;
+
+/** Sports are kept apart: matches, suggestions, the generator and the builder work on one sport at a time. */
+export const SPORTS = [
+  { key: "soccer", label: "Futbol" },
+  { key: "basketball", label: "Basketbol" },
+] as const;
+export type Sport = (typeof SPORTS)[number]["key"];
+
+/** The chosen sport is remembered in this cookie (set by the header switch, read by the pages). */
+export const SPORT_COOKIE = "terezi-sport";
+export const DEFAULT_SPORT: Sport = "soccer";
+export const parseSport = (value: string | undefined): Sport => SPORTS.find((s) => s.key === value)?.key ?? DEFAULT_SPORT;
+
+/** API markets per sport. Each market costs 1 credit per region per call (basketball: 3, soccer: 2). */
+export const ODDS_MARKETS: Record<Sport, string> = {
+  soccer: "h2h,totals",
+  basketball: "h2h,spreads,totals",
+};
 
 // Keys from the official docs (ProjectDocs/APIDocs/the-odds-api-v4.md).
 // `npm run verify:sports` confirms them against a live /v4/sports call.
 export const COMPETITIONS = [
-  { key: "soccer_epl", name: "Premyer Liqa (İngiltərə)" },
-  { key: "soccer_spain_la_liga", name: "La Liqa (İspaniya)" },
-  { key: "soccer_italy_serie_a", name: "Seriya A (İtaliya)" },
-  { key: "soccer_germany_bundesliga", name: "Bundesliqa (Almaniya)" },
-  { key: "soccer_france_ligue_one", name: "Liqa 1 (Fransa)" },
-  { key: "soccer_uefa_champs_league", name: "UEFA Çempionlar Liqası" },
-  { key: "soccer_uefa_europa_league", name: "UEFA Avropa Liqası" },
-  { key: "soccer_uefa_europa_conference_league", name: "UEFA Konfrans Liqası" },
-] as const;
+  { key: "soccer_epl", name: "Premyer Liqa (İngiltərə)", sport: "soccer" },
+  { key: "soccer_spain_la_liga", name: "La Liqa (İspaniya)", sport: "soccer" },
+  { key: "soccer_italy_serie_a", name: "Seriya A (İtaliya)", sport: "soccer" },
+  { key: "soccer_germany_bundesliga", name: "Bundesliqa (Almaniya)", sport: "soccer" },
+  { key: "soccer_france_ligue_one", name: "Liqa 1 (Fransa)", sport: "soccer" },
+  { key: "soccer_uefa_champs_league", name: "UEFA Çempionlar Liqası", sport: "soccer" },
+  { key: "soccer_uefa_europa_league", name: "UEFA Avropa Liqası", sport: "soccer" },
+  { key: "soccer_uefa_europa_conference_league", name: "UEFA Konfrans Liqası", sport: "soccer" },
+  { key: "basketball_nba", name: "NBA", sport: "basketball" },
+] as const satisfies readonly { key: string; name: string; sport: Sport }[];
 
 export type CompetitionKey = (typeof COMPETITIONS)[number]["key"];
 
@@ -27,6 +45,11 @@ export const COMPETITION_KEYS: readonly CompetitionKey[] = COMPETITIONS.map((c) 
 
 export function competitionName(key: string): string {
   return COMPETITIONS.find((c) => c.key === key)?.name ?? key;
+}
+
+/** Sport of a competition key ("basketball_nba" → basketball); unknown keys fall back to the API key prefix. */
+export function sportOf(competition: string): Sport {
+  return COMPETITIONS.find((c) => c.key === competition)?.sport ?? (competition.startsWith("basketball_") ? "basketball" : "soccer");
 }
 
 export const SYNC = {

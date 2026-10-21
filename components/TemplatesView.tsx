@@ -21,6 +21,8 @@ export interface TemplateDto {
   fairOdds: number;
   legs: {
     matchId: string;
+    competition: string;
+    line: number | null;
     homeTeam: string;
     awayTeam: string;
     commenceTime: string;
@@ -289,8 +291,8 @@ function TemplateCard({ template, subtitle, action }: { template: TemplateDto; s
             </div>
             <div className="flex justify-between gap-2 text-xs text-muted">
               <span>
-                {MARKET_LABEL[l.market as Market]}: <strong>{selectionLabel(l.market, l.selection)}</strong> ·{" "}
-                {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam)}
+                {MARKET_LABEL[l.market as Market]}: <strong>{selectionLabel(l.market, l.selection, l.line)}</strong> ·{" "}
+                {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam, l.line)}
               </span>
               <span className="tabular whitespace-nowrap">{formatBaku(l.commenceTime)}</span>
             </div>

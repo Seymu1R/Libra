@@ -82,78 +82,78 @@ export function SyncPanel({ status, competitions }: Props) {
     };
   }, [open]);
 
-  const toggle = (key: string) =>
-    setSelected((s) => (s.includes(key) ? s.filter((k) => k !== key) : [...s, key]));
+  const toggle = (key: string) => setSelected((s) => (s.includes(key) ? s.filter((k) => k !== key) : [...s, key]));
 
   return (
-    <div className="flex flex-col gap-2 md:items-end">
-      <div className="flex flex-wrap items-center gap-3 text-sm">
-        {status.mock && (
-          <span className="rounded bg-info-bg px-2 py-0.5 text-xs font-medium text-info-fg">
-            Test məlumatı
+    <div className="flex flex-col gap-2 lg:items-end">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm lg:justify-end">
+        {/* Status and actions wrap as two units, never in the middle of the buttons. */}
+        <div className="flex flex-wrap items-center gap-3">
+          {status.mock && <span className="rounded bg-info-bg px-2 py-0.5 text-xs font-medium text-info-fg">Test məlumatı</span>}
+          <span className="text-muted">
+            Son sinxron: <span className="tabular text-fg">{status.lastSync ? formatBaku(status.lastSync.startedAt) : "—"}</span>
           </span>
-        )}
-        <span className="text-muted">
-          Son sinxron:{" "}
-          <span className="tabular text-fg">
-            {status.lastSync ? formatBaku(status.lastSync.startedAt) : "—"}
+          <span className="text-muted">
+            Kredit: <span className="tabular text-fg">{status.creditsRemaining ?? "—"}</span>
           </span>
-        </span>
-        <span className="text-muted">
-          Kredit:{" "}
-          <span className="tabular text-fg">{status.creditsRemaining ?? "—"}</span>
-        </span>
-        <div className="relative" ref={menuRef}>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              className="rounded-md border border-border-strong px-3 py-2 text-fg transition-colors duration-150 hover:bg-surface-2"
+            >
+              Turnirlər ({selected.length}/{competitions.length})
+            </button>
+            {open && (
+              <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-border bg-surface p-2 shadow-lg">
+                <div className="mb-1 flex justify-between px-2 text-xs">
+                  <button
+                    type="button"
+                    className="text-primary-fg hover:underline"
+                    onClick={() => setSelected(competitions.map((c) => c.key))}
+                  >
+                    Hamısı
+                  </button>
+                  <button type="button" className="text-muted hover:underline" onClick={() => setSelected([])}>
+                    Heç biri
+                  </button>
+                </div>
+                {competitions.map((c) => (
+                  <label key={c.key} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-surface-2">
+                    <input type="checkbox" checked={selected.includes(c.key)} onChange={() => toggle(c.key)} className="accent-primary" />
+                    {c.name}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-expanded={open}
-            className="rounded-md border border-border-strong px-3 py-2 text-fg transition-colors duration-150 hover:bg-surface-2"
+            onClick={sync}
+            disabled={disabled}
+            className="rounded-md bg-primary px-4 py-2 font-medium text-on-primary transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-subtle"
           >
-            Turnirlər ({selected.length}/{competitions.length})
+            {busy || status.running ? "Sinxron gedir…" : "Sinxron et"}
           </button>
-          {open && (
-            <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-border bg-surface p-2 shadow-lg">
-              <div className="mb-1 flex justify-between px-2 text-xs">
-                <button type="button" className="text-primary-fg hover:underline" onClick={() => setSelected(competitions.map((c) => c.key))}>
-                  Hamısı
-                </button>
-                <button type="button" className="text-muted hover:underline" onClick={() => setSelected([])}>
-                  Heç biri
-                </button>
-              </div>
-              {competitions.map((c) => (
-                <label key={c.key} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-surface-2">
-                  <input type="checkbox" checked={selected.includes(c.key)} onChange={() => toggle(c.key)} className="accent-primary" />
-                  {c.name}
-                </label>
-              ))}
-            </div>
-          )}
+          <ExportMenu disabled={!status.lastSync} />
         </div>
-        <button
-          type="button"
-          onClick={sync}
-          disabled={disabled}
-          className="rounded-md bg-primary px-4 py-2 font-medium text-on-primary transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-subtle"
-        >
-          {busy || status.running ? "Sinxron gedir…" : "Sinxron et"}
-        </button>
-        <ExportMenu disabled={!status.lastSync} />
       </div>
       {cooling && (
         <p className="text-xs text-muted">
           Gözləmə: növbəti sinxron {Math.ceil(cooldownMs / 60_000)} dəq sonra ({formatBaku(status.cooldownUntil!)})
         </p>
       )}
-      {message && (
-        <p className={`text-xs ${message.kind === "ok" ? "text-highlight" : "text-danger"}`}>
-          {message.text}
-        </p>
-      )}
+      {message && <p className={`text-xs ${message.kind === "ok" ? "text-highlight" : "text-danger"}`}>{message.text}</p>}
       {status.lastSync && status.lastSync.results.some((r) => r.status === "failed") && !message && (
         <p className="text-xs text-danger">
-          Son sinxronda xəta: {status.lastSync.results.filter((r) => r.status === "failed").map((r) => r.key).join(", ")}
+          Son sinxronda xəta:{" "}
+          {status.lastSync.results
+            .filter((r) => r.status === "failed")
+            .map((r) => r.key)
+            .join(", ")}
         </p>
       )}
     </div>

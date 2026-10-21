@@ -103,7 +103,7 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
                               : "border-border-strong hover:bg-surface-2"
                         }`}
                       >
-                        {selectionLabel(l.market, l.selection)} <span className="opacity-75">{formatPercent(l.probability)}</span>
+                        {selectionLabel(l.market, l.selection, l.line)} <span className="opacity-75">{formatPercent(l.probability)}</span>
                       </button>
                     );
                   })}
@@ -119,7 +119,7 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
             {selectedLegs.map((l) => (
               <li key={legKey(l)} className="flex justify-between gap-2">
                 <span className="truncate">
-                  {l.homeTeam} — {l.awayTeam}: <strong>{selectionLabel(l.market, l.selection)}</strong>
+                  {l.homeTeam} — {l.awayTeam}: <strong>{selectionLabel(l.market, l.selection, l.line)}</strong>
                 </span>
                 <span className="tabular">{formatPercent(l.probability)}</span>
               </li>

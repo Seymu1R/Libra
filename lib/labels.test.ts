@@ -15,3 +15,16 @@ describe("selection labels", () => {
     expect(describeSelection("1X2", "HOME", "Arsenal", "Chelsea")).toBe("Arsenal qalib");
   });
 });
+
+describe("basketball labels", () => {
+  it("spread labels show each side's handicap; totals show the points line", () => {
+    expect(selectionLabel("SPR", "HOME", -4.5)).toBe("1 -4.5");
+    expect(selectionLabel("SPR", "AWAY", -4.5)).toBe("2 +4.5");
+    expect(selectionLabel("TOT", "OVER", 230.5)).toBe("Üst 230.5");
+    expect(selectionLabel("ML", "AWAY")).toBe("2");
+    expect(describeSelection("SPR", "HOME", "Celtics", "Lakers", -4.5)).toBe("Celtics 4.5 xaldan çox fərqlə qalib");
+    expect(describeSelection("SPR", "AWAY", "Celtics", "Lakers", -4.5)).toBe("Lakers qalib və ya 4.5 xaldan az fərqlə uduzur");
+    expect(describeSelection("TOT", "UNDER", "Celtics", "Lakers", 230.5)).toBe("230.5-dən az xal");
+    expect(describeSelection("ML", "HOME", "Celtics", "Lakers")).toBe("Celtics qalib (əlavə vaxt daxil)");
+  });
+});

@@ -138,3 +138,72 @@ describe("analyzeMatches", () => {
     expect(r.map((m) => m.id)).toEqual(["a", "b", "z"]);
   });
 });
+
+describe("analyzeMatch — basketball", () => {
+  const H = "Boston Celtics";
+  const A = "Los Angeles Lakers";
+  const base = (key: string) => ({ bookmaker: key, bookmakerTitle: key.toUpperCase() });
+  function nbaBook(key: string, ml: [number, number], spread?: [number, number, number], total?: [number, number, number]): PriceRow[] {
+    const rows: PriceRow[] = [
+      { ...base(key), market: "h2h", outcome: H, point: null, price: ml[0] },
+      { ...base(key), market: "h2h", outcome: A, point: null, price: ml[1] },
+    ];
+    if (spread) {
+      const [line, h, a] = spread;
+      rows.push(
+        { ...base(key), market: "spreads", outcome: H, point: line, price: h },
+        { ...base(key), market: "spreads", outcome: A, point: -line, price: a },
+      );
+    }
+    if (total) {
+      const [line, o, u] = total;
+      rows.push(
+        { ...base(key), market: "totals", outcome: "Over", point: line, price: o },
+        { ...base(key), market: "totals", outcome: "Under", point: line, price: u },
+      );
+    }
+    return rows;
+  }
+  const nba = (prices: PriceRow[]): MatchInput => ({
+    id: "n1",
+    competition: "basketball_nba",
+    homeTeam: H,
+    awayTeam: A,
+    commenceTime: "2026-10-22T00:00:00Z",
+    prices,
+  });
+
+  it("winner is 2-way; spread and total use the line most bookmakers quote", () => {
+    const prices = [
+      ...["a", "b", "c"].flatMap((k) => nbaBook(k, [1.5, 2.6], [-4.5, 1.9, 1.9], [230.5, 1.9, 1.9])),
+      ...nbaBook("d", [1.5, 2.6], [-5.5, 2.1, 1.7], [231.5, 2.1, 1.7]),
+    ];
+    const r = analyzeMatch(nba(prices), OPTS);
+    expect(r.markets.map((m) => [m.market, m.line, m.bookmakerCount])).toEqual([
+      ["ML", null, 4],
+      ["SPR", -4.5, 3],
+      ["TOT", 230.5, 3],
+    ]);
+    expect(r.markets[0]!.selections.map((s) => s.selection)).toEqual(["HOME", "AWAY"]);
+    expect(r.markets[0]!.selections[0]!.probability).toBeCloseTo(1 / 1.5 / (1 / 1.5 + 1 / 2.6), 12);
+    expect(r.markets[1]!.selections[0]!.probability).toBeCloseTo(0.5, 12);
+  });
+
+  it("ignores whole lines (push) and inconsistent spread pairs; skips without enough winner prices", () => {
+    const whole = ["a", "b", "c"].flatMap((k) => nbaBook(k, [1.5, 2.6], [-4, 1.9, 1.9], [230, 1.9, 1.9]));
+    expect(analyzeMatch(nba(whole), OPTS).markets.map((m) => m.market)).toEqual(["ML"]);
+    const broken = ["a", "b", "c"].flatMap((k) =>
+      nbaBook(k, [1.5, 2.6], [-4.5, 1.9, 1.9]).map((r) => (r.market === "spreads" && r.outcome === A ? { ...r, point: 3.5 } : r)),
+    );
+    expect(analyzeMatch(nba(broken), OPTS).markets.map((m) => m.market)).toEqual(["ML"]);
+    expect(analyzeMatch(nba(["a", "b"].flatMap((k) => nbaBook(k, [1.5, 2.6]))), OPTS).skipped).toBe(true);
+  });
+
+  it("ties between lines → the lower line", () => {
+    const prices = [
+      ...["a", "b", "c"].flatMap((k) => nbaBook(k, [1.5, 2.6], undefined, [231.5, 1.9, 1.9])),
+      ...["d", "e", "f"].flatMap((k) => nbaBook(k, [1.5, 2.6], undefined, [230.5, 1.9, 1.9])),
+    ];
+    expect(analyzeMatch(nba(prices), OPTS).markets.find((m) => m.market === "TOT")!.line).toBe(230.5);
+  });
+});

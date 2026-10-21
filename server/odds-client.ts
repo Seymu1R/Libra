@@ -2,7 +2,7 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { z } from "zod";
-import { ODDS_API_BASE_URL, ODDS_REQUEST } from "@/lib/config";
+import { ODDS_API_BASE_URL, ODDS_MARKETS, ODDS_REQUEST, sportOf } from "@/lib/config";
 import { FIXTURE_ANCHOR } from "@/lib/fixtures-anchor";
 import { parseQuotaHeaders, type QuotaHeaders } from "@/lib/odds-api/quota";
 import {
@@ -70,7 +70,7 @@ export class HttpOddsClient implements OddsClient {
   getOdds(sportKey: string, window: TimeWindow) {
     return this.request(
       `/v4/sports/${encodeURIComponent(sportKey)}/odds`,
-      { ...ODDS_REQUEST, ...windowParams(window) },
+      { ...ODDS_REQUEST, markets: ODDS_MARKETS[sportOf(sportKey)], ...windowParams(window) },
       oddsResponseSchema,
     );
   }

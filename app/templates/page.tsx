@@ -1,6 +1,7 @@
 import { EmptyState } from "@/components/EmptyState";
 import { TemplatesView, type TemplateDto } from "@/components/TemplatesView";
-import { SAVED_TEMPLATE_TYPES, TEMPLATES } from "@/lib/config";
+import { SAVED_TEMPLATE_TYPES, sportOf, TEMPLATES } from "@/lib/config";
+import { currentSport } from "../current-sport";
 import { bakuDay, dateWindow, inWindow, parseDateFilter, toSearchParams } from "@/lib/date-filter";
 import { allLegs } from "@/lib/templates/build";
 import { analyzeSync, latestDataSync } from "@/server/analysis.service";
@@ -15,6 +16,7 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
 
   const now = new Date();
   const filter = parseDateFilter(await searchParams);
+  const sport = await currentSport();
   const window = dateWindow(filter, now);
   const [templates, analyses, blocked] = await Promise.all([
     listTemplates(db, sync.id),
@@ -22,8 +24,8 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
     blockedMatchIds(db, now),
   ]);
 
-  // The date filter applies to the generator, the system suggestions and the manual builder alike.
-  const inRange = analyses.filter((a) => inWindow(a.commenceTime, window));
+  // The sport and date filters apply to the generator, the system suggestions and the manual builder alike.
+  const inRange = analyses.filter((a) => sportOf(a.competition) === sport && inWindow(a.commenceTime, window));
   const legs = allLegs(inRange, now);
 
   // System suggestions are built live for the chosen window (the stored ones cover the whole snapshot).
@@ -38,6 +40,8 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
             fairOdds: template.fairOdds,
             legs: template.legs.map((l) => ({
               matchId: l.matchId,
+              competition: l.competition,
+              line: l.line ?? null,
               homeTeam: l.homeTeam,
               awayTeam: l.awayTeam,
               commenceTime: l.commenceTime,
@@ -52,7 +56,9 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
   );
 
   const saved: TemplateDto[] = templates
-    .filter((t) => (SAVED_TEMPLATE_TYPES as readonly string[]).includes(t.type))
+    .filter(
+      (t) => (SAVED_TEMPLATE_TYPES as readonly string[]).includes(t.type) && t.legs.some((l) => sportOf(l.match.competition) === sport),
+    )
     .map((t) => ({
       id: t.id,
       type: t.type,
@@ -61,6 +67,8 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
       fairOdds: t.fairOdds,
       legs: t.legs.map((l) => ({
         matchId: l.matchId,
+        competition: l.match.competition,
+        line: l.line,
         homeTeam: l.match.homeTeam,
         awayTeam: l.match.awayTeam,
         commenceTime: l.match.commenceTime.toISOString(),
@@ -80,7 +88,7 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
       maxDisagreement={TEMPLATES.maxDisagreement}
       blockedMatchIds={[...blocked]}
       filter={filter}
-      filterKey={toSearchParams(filter)}
+      filterKey={`${sport}|${toSearchParams(filter)}`}
       matchCount={new Set(legs.map((l) => l.matchId)).size}
       today={bakuDay(now)}
     />

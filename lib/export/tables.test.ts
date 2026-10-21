@@ -24,12 +24,16 @@ describe("oddsTable", () => {
   it("maps API outcomes to our selections", () => {
     const t = oddsTable([row("h2h", "Arsenal", 2), row("h2h", "Draw", 3.4), row("h2h", "Chelsea", 4), row("totals", "Over", 1.9, 3.5)]);
     expect(t.rows.map((r) => [r[6], r[7]])).toEqual([
-      ["1X2", "1"],
-      ["1X2", "X"],
-      ["1X2", "2"],
+      ["Qalib / 1X2", "1"],
+      ["Qalib / 1X2", "X"],
+      ["Qalib / 1X2", "2"],
       ["Üst/Alt", "Üst 3.5"],
     ]);
     expect(t.rows[0]![1]).toBe("Premyer Liqa (İngiltərə)");
+    expect(oddsTable([row("spreads", "Chelsea", 1.9, 4.5), row("spreads", "Arsenal", 1.9, -4.5)]).rows.map((r) => r[7])).toEqual([
+      "2 +4.5",
+      "1 -4.5",
+    ]);
   });
 });
 

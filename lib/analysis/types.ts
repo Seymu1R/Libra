@@ -1,7 +1,11 @@
 /** Over/under markets by goal line. Bookmakers quote one main line per match; the analysis keeps the best-covered one. */
 export const TOTALS_LINES = { OU25: 2.5, OU35: 3.5, OU45: 4.5 } as const;
 export type TotalsMarket = keyof typeof TOTALS_LINES;
-export type Market = "1X2" | "DC" | TotalsMarket;
+/**
+ * Soccer: 1X2, DC (derived), OU25/OU35/OU45.
+ * Basketball: ML (winner incl. overtime, 2-way), SPR (point spread; `line` = home handicap), TOT (total points; `line` = points).
+ */
+export type Market = "1X2" | "DC" | TotalsMarket | "ML" | "SPR" | "TOT";
 export type Selection = "HOME" | "DRAW" | "AWAY" | "1X" | "X2" | "12" | "OVER" | "UNDER";
 
 export const MARKET_SELECTIONS = {
@@ -10,6 +14,9 @@ export const MARKET_SELECTIONS = {
   OU25: ["OVER", "UNDER"],
   OU35: ["OVER", "UNDER"],
   OU45: ["OVER", "UNDER"],
+  ML: ["HOME", "AWAY"],
+  SPR: ["HOME", "AWAY"],
+  TOT: ["OVER", "UNDER"],
 } as const satisfies Record<Market, readonly Selection[]>;
 
 /** One stored price (mirrors an OddsSnapshot row). */
@@ -54,6 +61,8 @@ export interface SelectionAnalysis {
 
 export interface MarketAnalysis {
   market: Market;
+  /** SPR: home handicap (away = −line) · TOT: points · null for markets with a fixed meaning. */
+  line: number | null;
   bookmakerCount: number;
   selections: SelectionAnalysis[];
 }

@@ -115,7 +115,7 @@ export async function runSync(requested: readonly string[] | undefined, deps: Sy
           await tx.match.upsert({ where: { id: e.id }, create: { id: e.id, ...data }, update: data });
           const rows = e.bookmakers.flatMap((b) =>
             b.markets
-              .filter((m) => m.key === "h2h" || m.key === "totals")
+              .filter((m) => m.key === "h2h" || m.key === "totals" || m.key === "spreads")
               .flatMap((m) =>
                 m.outcomes.map((o) => ({
                   syncId: sync.id,

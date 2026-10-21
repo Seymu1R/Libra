@@ -1,7 +1,7 @@
 import "server-only";
 import { allLegs, allowedDespiteBlock, buildTemplates, couponSignature, type Leg } from "@/lib/templates/build";
 import { combine } from "@/lib/templates/combine";
-import { SAVED_TEMPLATE_TYPES, TEMPLATES, type SavedTemplateType } from "@/lib/config";
+import { SAVED_TEMPLATE_TYPES, SPORTS, TEMPLATES, sportOf, type SavedTemplateType } from "@/lib/config";
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { MatchAnalysis } from "@/lib/analysis/types";
 import { analyzeSync } from "./analysis.service";
@@ -29,10 +29,16 @@ export function buildAutoTemplates(analyses: readonly MatchAnalysis[], blocked: 
   });
 }
 
-/** Rebuilds the auto templates of a sync from stored data (no API call). Saved templates are kept. */
+/** Rebuilds the auto templates of a sync from stored data (no API call), per sport. Saved templates are kept. */
 export async function regenerateTemplates(db: PrismaClient, syncId: string, now: Date = new Date()) {
   const [analyses, blocked] = await Promise.all([analyzeSync(db, syncId), blockedMatchIds(db, now)]);
-  const built = buildAutoTemplates(analyses, blocked, now);
+  const built = SPORTS.flatMap((s) =>
+    buildAutoTemplates(
+      analyses.filter((a) => sportOf(a.competition) === s.key),
+      blocked,
+      now,
+    ),
+  );
 
   await db.$transaction(async (tx) => {
     await tx.template.deleteMany({ where: { syncId, type: { notIn: [...SAVED_TEMPLATE_TYPES] } } });
@@ -81,9 +87,10 @@ export async function saveCustomTemplate(
     if (!leg) throw new Error(`Seçim tapılmadı və ya matç artıq başlayıb: ${p.matchId} ${p.market} ${p.selection}`);
     return leg;
   });
+  if (new Set(legs.map((l) => sportOf(l.competition))).size > 1) throw new Error("Futbol və basketbol eyni kuponda ola bilməz.");
   const existing = await db.template.findMany({
     where: { type: { in: [...SAVED_TEMPLATE_TYPES] }, status: "PENDING" },
-    select: { legs: { select: { matchId: true, market: true, selection: true } } },
+    select: { legs: { select: { matchId: true, market: true, selection: true, line: true } } },
   });
   const signature = couponSignature(legs);
   if (existing.some((t) => couponSignature(t.legs) === signature)) throw new Error("Bu kupon artıq yadda saxlanılıb.");
@@ -105,6 +112,7 @@ function legData(l: Leg) {
     matchId: l.matchId,
     market: l.market,
     selection: l.selection,
+    line: l.line ?? null,
     probability: l.probability,
     bookmakerCount: l.bookmakerCount,
   };

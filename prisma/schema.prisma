@@ -50,7 +50,7 @@ model OddsSnapshot {
   matchId        String
   bookmaker      String
   bookmakerTitle String
-  /// h2h | totals
+  /// h2h | totals | spreads
   market         String
   outcome        String
   point          Float?
@@ -82,10 +82,12 @@ model TemplateLeg {
   id             String   @id @default(cuid())
   templateId     String
   matchId        String
-  /// 1X2 | DC | OU25
+  /// 1X2 | DC | OU25 | OU35 | OU45 · basketball: ML | SPR | TOT
   market         String
-  /// 1X2: HOME|DRAW|AWAY · DC: 1X|X2|12 · OU25: OVER|UNDER
+  /// 1X2: HOME|DRAW|AWAY · DC: 1X|X2|12 · OU*: OVER|UNDER · ML / SPR: HOME|AWAY · TOT: OVER|UNDER
   selection      String
+  /// SPR: home handicap · TOT: points · null otherwise
+  line           Float?
   probability    Float
   bookmakerCount Int
   /// Phase 2: WON | LOST | VOID

@@ -15,8 +15,8 @@ It never places bets, has no in-play features, and is single-user.
 
 | ID | Requirement |
 |---|---|
-| FR-1 | Verify sport keys for 8 competitions via `GET /v4/sports` (free). Unavailable ones are reported, never invented. |
-| FR-2 | Fetch odds: `regions=eu`, `markets=h2h,totals`, `oddsFormat=decimal`. Prefer the free events endpoint to avoid spending credits. |
+| FR-1 | Verify sport keys for 8 competitions via `GET /v4/sports` (free). Unavailable ones are reported, never invented. ➕ 2026-10-21 (Story 8.1): + `basketball_nba`. |
+| FR-2 | Fetch odds: `regions=eu`, `markets=h2h,totals`, `oddsFormat=decimal`. Prefer the free events endpoint to avoid spending credits. ➕ Basketball: `markets=h2h,spreads,totals` (3 credits). |
 | FR-3 | Log `x-requests-remaining/used/last` on every API call; persist latest remaining. |
 | FR-4 | Manual sync only (`POST /api/sync`, button "Sinxron et"). No polling, no cron. |
 | FR-5 | Competition selection per sync (default: all). |
