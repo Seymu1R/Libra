@@ -45,6 +45,6 @@ export async function analyzeSync(db: PrismaClient, syncId: string): Promise<Mat
 
   return analyzeMatches([...byMatch.values()], {
     minBookmakers: ANALYSIS.minBookmakers,
-    totalsLine: ANALYSIS.totalsLine,
+    totalsMarkets: ANALYSIS.totalsMarkets,
   });
 }

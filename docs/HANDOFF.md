@@ -22,11 +22,11 @@ və yalnız baxış üçün kupon şablonları quran şəxsi, lokal veb tətbiq.
 | 0 — Scaffold | Next.js 16.4 (App Router) · React 19.3 · TS 5.9 strict · Tailwind 4 · Vitest 5 · Prisma 7.10 + SQLite (better-sqlite3 adapter) · zod 4 |
 | 1 — API client | Rəsmi sənədlər oxunub → `ProjectDocs/APIDocs/the-odds-api-v4.md`. zod sxemləri, kvota header parser, real + mock client, hər çağırış `ApiCallLog`-a yazılır. `npm run verify:sports` skripti |
 | 2 — Baza + sinxron | Prisma sxemi + ilk miqrasiya. `POST /api/sync`: cooldown, eyni anda iki sinxron bloku, turnir seçimi, 7 günlük pəncərə, turnir üzrə xəta izolyasiyası, pulsuz `events` yoxlaması ilə kredit qənaəti |
-| 3 — Analiz (`lib/analysis`) | 1/əmsal → normallaşdırma, median konsensus + renormalizasiya, fikir ayrılığı, 1X2 / Ü/A 2.5 / ikili şans (1X2-dən), ən yaxşı əmsal, MIN_BOOKMAKERS |
+| 3 — Analiz (`lib/analysis`) | 1/əmsal → normallaşdırma, median konsensus + renormalizasiya, fikir ayrılığı, 1X2 / Ü/A 2.5 (və ya 3.5 / 4.5 — matçın əsas xətti) / ikili şans (1X2-dən), ən yaxşı əmsal, MIN_BOOKMAKERS |
 | 4 — Kuponlar (`lib/templates`) | Deterministik greedy: Sabit / Balanslı / Riskli, matç başına 1 seçim, fərdi kupon (server ehtimalları yenidən hesablayır) |
 | 5 — UI | Header (sinxron, turnir seçimi, son sinxron, kredit, gözləmə), Matçlar, Kuponlar + fərdi kupon qurucusu, xəbərdarlıq, mobil görünüş. **2026-10-21:** semantik rəng tokenləri (`app/globals.css`), Gündüz / Gecə / Sistem keçidi, Fira şriftləri, SVG loqo |
 
-| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir (Hədəf-də "Matç sayı" ilə sabitlənə bilər), "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq. Sistemin təklifləri də saxlanıla bilər; silmədən əvvəl təsdiq soruşulur |
+| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir (Hədəf-də "Matç sayı" ilə sabitlənə bilər), risk seçimlər arasında bərabər paylanır, "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq. Sistemin təklifləri də saxlanıla bilər; silmədən əvvəl təsdiq soruşulur |
 
 Yoxlama: **70 test keçir**, `tsc` / `eslint` / `next build` təmiz, mock rejimdə tam axın brauzerdə yoxlanıb.
 

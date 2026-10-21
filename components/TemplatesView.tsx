@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SAVED_TEMPLATE_TYPES, TEMPLATES, savedTypeFor, type TemplateRule, type TemplateType } from "@/lib/config";
 import { formatOdds, formatPercent, formatPoints } from "@/lib/format";
-import { describeSelection, MARKET_LABEL, SELECTION_LABEL, TEMPLATE_LABEL } from "@/lib/labels";
-import type { Market, Selection } from "@/lib/analysis/types";
+import { describeSelection, MARKET_LABEL, selectionLabel, TEMPLATE_LABEL } from "@/lib/labels";
+import type { Market } from "@/lib/analysis/types";
 import { couponSignature, type Leg } from "@/lib/templates/build";
 import { formatBaku } from "@/lib/time";
 import type { DateFilter as Filter } from "@/lib/date-filter";
@@ -289,8 +289,8 @@ function TemplateCard({ template, subtitle, action }: { template: TemplateDto; s
             </div>
             <div className="flex justify-between gap-2 text-xs text-muted">
               <span>
-                {MARKET_LABEL[l.market as Market]}: <strong>{SELECTION_LABEL[l.selection as Selection]}</strong> ·{" "}
-                {describeSelection(l.selection, l.homeTeam, l.awayTeam)}
+                {MARKET_LABEL[l.market as Market]}: <strong>{selectionLabel(l.market, l.selection)}</strong> ·{" "}
+                {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam)}
               </span>
               <span className="tabular whitespace-nowrap">{formatBaku(l.commenceTime)}</span>
             </div>

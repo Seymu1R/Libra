@@ -2,6 +2,22 @@
 
 Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, nə edildi, harada). Köhnə qeydlər dəyişdirilmir.
 
+## 2026-10-21 — Sessiya 2: riskin bərabər paylanması (Story 7.7)
+
+- Hədəf və Aralıq rejimlərində generator hədəfə uyğun kuponlar arasından seçimləri **ən bərabər** olanı götürür.
+  Məsələn, 5% × 8 matç üçün hər seçim ~69% olmağa çalışır, əvvəlki kimi 4 × 90% + 4 × 50% qarışığı alınmır.
+- Real datada (24 saat, 5% × 8) seçimlər 57–87% arasında oldu, əvvəl 50–92% idi. Pəncərədə matç az olduğu üçün tam bərabərlik alınmır.
+- Real əmsal rejimi və seçim sayı qaydası dəyişmədi.
+- **Yoxlama:** 86 test ✔ (+1) · tsc ✔ · eslint ✔.
+
+## 2026-10-21 — Sessiya 2: Üst/Alt 3.5 və 4.5 (Story 7.6)
+
+- Real datada yoxlandı, kredit xərclənmədi. Hər bukmeker matç üçün yalnız bir əsas alt/üst xətti verir: 2.5, 3.5 və ya 4.5. 1.5 xətti datada yoxdur.
+- 2.5 olduğu kimi qaldı. Bukmekerlər əsas xətti 3.5 və ya 4.5 verəndə həmin xətt götürülür, hər matçda bir xətt.
+  Alt/üst bazarı olan matçlar 60/97-dən **85/97**-yə çıxdı (OU25 60 · OU35 23 · OU45 2).
+- Etiketlər xəttə görə dəyişir ("Üst 3.5", "3.5-dən çox qol"). Yeni xətlər generatorda, təkliflərdə və fərdi kuponda istifadə olunur.
+- **Yoxlama:** 85 test ✔ (+5) · tsc ✔ · eslint ✔. Matçlar və Kuponlar səhifələrinə brauzerdə baxıldı.
+
 ## 2026-10-21 — Sessiya 2: generatorda matç sayı (Story 7.5)
 
 - Generatorun "Hədəf" rejiminə üçüncü sahə əlavə olundu: **Matç sayı (2–8)**. Boş qalsa, sistem sayı özü seçir (əvvəlki kimi).

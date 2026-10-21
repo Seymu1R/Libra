@@ -41,8 +41,8 @@ export const SYNC = {
 export const ANALYSIS = {
   /** Markets (and therefore matches) with fewer valid bookmakers are skipped. */
   minBookmakers: 8,
-  /** Only this totals line is analysed. */
-  totalsLine: 2.5,
+  /** Over/under lines analysed (see TOTALS_LINES); per match only the one with the most bookmakers is kept, ties → lower line. */
+  totalsMarkets: ["OU25", "OU35", "OU45"] as const,
 } as const;
 
 export type TemplateType = "SABIT" | "BALANSLI" | "RISKLI";

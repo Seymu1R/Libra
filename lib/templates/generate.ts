@@ -51,6 +51,8 @@ interface Window {
   targets: number[];
   /** Lower is better among accepted coupons with the same leg count. */
   rank: (probability: number) => number;
+  /** Hədəf / Aralıq: among accepted coupons prefer the most even legs (each ≈ probability^(1/k)). */
+  balanced: boolean;
 }
 
 function windowFor(goal: GeneratorGoal, tolerance: number): Window | string {
@@ -58,7 +60,14 @@ function windowFor(goal: GeneratorGoal, tolerance: number): Window | string {
   if (goal.mode === "target") {
     const p = goal.probability;
     if (!(p > 0 && p < 1)) return "Ehtimal 0% ilə 100% arasında olmalıdır.";
-    return { lo: p * (1 - tolerance), hi: p * (1 + tolerance), minRealOdds: null, targets: [p], rank: (x) => Math.abs(Math.log(x / p)) };
+    return {
+      lo: p * (1 - tolerance),
+      hi: p * (1 + tolerance),
+      minRealOdds: null,
+      targets: [p],
+      rank: (x) => Math.abs(Math.log(x / p)),
+      balanced: true,
+    };
   }
   if (!(goal.minProbability > 0 && goal.minProbability < 1)) return "Ehtimal 0% ilə 100% arasında olmalıdır.";
   if (goal.mode === "range") {
@@ -67,7 +76,7 @@ function windowFor(goal: GeneratorGoal, tolerance: number): Window | string {
     const hi = 1 / goal.minOdds;
     if (lo > hi) return `Şərtlər ziddiyyətlidir: əmsal ≥ ${goal.minOdds} olanda ehtimal ən çox ${pct(hi)} ola bilər.`;
     const mid = Math.sqrt(lo * hi);
-    return { lo, hi, minRealOdds: null, targets: [mid], rank: (x) => Math.abs(Math.log(x / mid)) };
+    return { lo, hi, minRealOdds: null, targets: [mid], rank: (x) => Math.abs(Math.log(x / mid)), balanced: true };
   }
   if (!(goal.minRealOdds > 1)) return "Əmsal 1-dən böyük olmalıdır.";
   // Real odds ≈ fair odds × value, so aim slightly above the minimum probability first, then higher.
@@ -75,7 +84,7 @@ function windowFor(goal: GeneratorGoal, tolerance: number): Window | string {
   const top = Math.max(lo, Math.min(0.95, 1.3 / goal.minRealOdds));
   const steps = 10;
   const targets = Array.from({ length: steps + 1 }, (_, i) => lo * Math.pow(top / lo, i / steps));
-  return { lo, hi: 1, minRealOdds: goal.minRealOdds, targets, rank: (x) => -x };
+  return { lo, hi: 1, minRealOdds: goal.minRealOdds, targets, rank: (x) => -x, balanced: false };
 }
 
 /**
@@ -125,6 +134,60 @@ function pickFor(candidates: readonly Leg[], k: number, target: number, preferVa
   return chosen.sort(compareLegs);
 }
 
+/** Unevenness of a coupon: variance of the legs' log-probabilities (0 when every leg has the same probability). */
+export function legSpread(legs: readonly Pick<Leg, "probability">[]): number {
+  const logs = legs.map((l) => Math.log(l.probability));
+  const mean = logs.reduce((a, b) => a + b, 0) / logs.length;
+  return logs.reduce((a, x) => a + (x - mean) ** 2, 0) / logs.length;
+}
+
+/**
+ * Even split: starts from the legs closest to `target^(1/k)` (one per match), then swaps single legs to bring the product
+ * into [lo, hi] while keeping the legs as close to each other as possible.
+ */
+function pickEven(candidates: readonly Leg[], k: number, target: number, lo: number, hi: number): Leg[] | null {
+  const perLeg = Math.log(target) / k;
+  const chosen: Leg[] = [];
+  const taken = new Set<string>();
+  for (const l of [...candidates].sort(
+    (a, b) => Math.abs(Math.log(a.probability) - perLeg) - Math.abs(Math.log(b.probability) - perLeg) || compareLegs(a, b),
+  )) {
+    if (chosen.length >= k) break;
+    if (taken.has(l.matchId)) continue;
+    chosen.push(l);
+    taken.add(l.matchId);
+  }
+  if (chosen.length < k) return null;
+
+  // Outside the window dominates; inside it, the spread around the even per-leg value decides.
+  const cost = (legs: readonly Leg[]) => {
+    const sum = legs.reduce((a, l) => a + Math.log(l.probability), 0);
+    const miss = sum < Math.log(lo) ? Math.log(lo) - sum : sum > Math.log(hi) ? sum - Math.log(hi) : 0;
+    return 1000 * miss + legs.reduce((a, l) => a + (Math.log(l.probability) - sum / k) ** 2, 0);
+  };
+  for (let iter = 0; iter < 8 * k; iter++) {
+    const current = cost(chosen);
+    let best: { i: number; leg: Leg; cost: number } | null = null;
+    for (let i = 0; i < chosen.length; i++) {
+      const others = new Set(chosen.filter((_, j) => j !== i).map((l) => l.matchId));
+      for (const c of candidates) {
+        if (others.has(c.matchId) || c === chosen[i]) continue;
+        const trial = chosen.map((l, j) => (j === i ? c : l));
+        const value = cost(trial);
+        if (
+          value < current - 1e-12 &&
+          (!best || value < best.cost - 1e-12 || (Math.abs(value - best.cost) <= 1e-12 && compareLegs(c, best.leg) < 0))
+        ) {
+          best = { i, leg: c, cost: value };
+        }
+      }
+    }
+    if (!best) break;
+    chosen[best.i] = best.leg;
+  }
+  return chosen.sort(compareLegs);
+}
+
 /**
  * Deterministic coupon generator. Chooses the leg count itself: the fewest legs (≥ minLegs)
  * that satisfy the goal. One leg per match; saved-coupon matches follow the repeat rule.
@@ -163,13 +226,16 @@ export function generateCoupon(legs: readonly Leg[], goal: GeneratorGoal, opts: 
 
   for (let k = minLegs; k <= Math.min(maxLegs, matchCount); k++) {
     let best: GeneratedCoupon | null = null;
+    let bestScore = Infinity;
     const consider = (picked: Leg[] | null) => {
       if (!picked) return;
       const combined = combine(picked)!;
       const real = realOdds(picked);
       const p = combined.combinedProbability;
       const ok = p >= window.lo && p <= window.hi && (!valueMode || (real !== null && real >= window.minRealOdds!));
-      if (ok && (!best || window.rank(p) < window.rank(best.combinedProbability) - 1e-12)) {
+      const score = window.balanced ? legSpread(picked) + 1e-6 * window.rank(p) : window.rank(p);
+      if (ok && (!best || score < bestScore - 1e-12)) {
+        bestScore = score;
         best = { legs: [...picked].sort(compareLegs), ...combined, realOdds: real };
       }
     };
@@ -182,7 +248,10 @@ export function generateCoupon(legs: readonly Leg[], goal: GeneratorGoal, opts: 
     } else {
       const pools = valueMode ? [k + 2, 2 * k, 4 * k].map((n) => byValue.slice(0, n)).concat([candidates]) : [candidates];
       for (const pool of pools)
-        for (const target of window.targets) for (let safe = 0; safe < k; safe++) consider(pickFor(pool, k, target, valueMode, safe));
+        for (const target of window.targets) {
+          if (window.balanced) consider(pickEven(pool, k, target, window.lo, window.hi));
+          for (let safe = 0; safe < k; safe++) consider(pickFor(pool, k, target, valueMode, safe));
+        }
     }
     if (best) return { ok: true, coupon: best };
   }

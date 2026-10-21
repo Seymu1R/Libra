@@ -63,7 +63,7 @@ Portability rules: no SQLite-specific SQL; JSON stored as `String` (Postgres swi
 
 ## 4. Analysis algorithm (lib/analysis)
 
-Per match, per market (`h2h` = 3 outcomes; `totals` restricted to `point === 2.5`, Over/Under):
+Per match, per market (`h2h` = 3 outcomes; `totals` restricted to `point === 2.5`, Over/Under — ➕ Story 7.6: 2.5 / 3.5 / 4.5, the best-covered line per match (`OU25|OU35|OU45`)):
 1. For each bookmaker with a **complete** outcome set: `implied_i = 1/price_i`; `fair_i = implied_i / Σ implied`.
    Incomplete/invalid (price ≤ 1, missing outcome) bookmaker markets are dropped.
 2. `bookmakerCount` = bookmakers that passed step 1 for that market. Market skipped if `< MIN_BOOKMAKERS`. Match skipped if 1X2 is skipped.

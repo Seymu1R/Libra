@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Leg } from "./build";
-import { generateCoupon, realOdds } from "./generate";
+import { generateCoupon, legSpread, realOdds } from "./generate";
 
 function leg(matchId: string, selection: Leg["selection"], probability: number, price: number | null = null, disagreement = 0.02): Leg {
   return {
@@ -64,6 +64,16 @@ describe("generateCoupon", () => {
     expect(tooMany.ok).toBe(false);
     if (!tooMany.ok) expect(tooMany.error).toContain("yalnız 3 uyğun matç");
     for (const legs of [1, 9, 2.5]) expect(generateCoupon(POOL, { mode: "target", probability: 0.3, legs }, OPTS).ok).toBe(false);
+  });
+
+  it("target: prefers evenly spread legs over a mix of safe and risky ones", () => {
+    // Each match offers a ~67% leg, a 95% leg and a 47% leg: 0,67⁴ ≈ 0,95² × 0,47² ≈ 20%.
+    const pool = ["a", "b", "c", "d", "e"].flatMap((id) => [leg(id, "HOME", 0.67), leg(id, "1X", 0.95), leg(id, "AWAY", 0.47)]);
+    const r = generateCoupon(pool, { mode: "target", probability: 0.2, legs: 4 }, OPTS);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.coupon.legs.map((l) => l.probability)).toEqual([0.67, 0.67, 0.67, 0.67]);
+    expect(legSpread(r.coupon.legs)).toBeCloseTo(0, 12);
   });
 
   it("is deterministic regardless of input order", () => {

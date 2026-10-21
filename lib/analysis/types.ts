@@ -1,10 +1,15 @@
-export type Market = "1X2" | "DC" | "OU25";
+/** Over/under markets by goal line. Bookmakers quote one main line per match; the analysis keeps the best-covered one. */
+export const TOTALS_LINES = { OU25: 2.5, OU35: 3.5, OU45: 4.5 } as const;
+export type TotalsMarket = keyof typeof TOTALS_LINES;
+export type Market = "1X2" | "DC" | TotalsMarket;
 export type Selection = "HOME" | "DRAW" | "AWAY" | "1X" | "X2" | "12" | "OVER" | "UNDER";
 
 export const MARKET_SELECTIONS = {
   "1X2": ["HOME", "DRAW", "AWAY"],
   DC: ["1X", "X2", "12"],
   OU25: ["OVER", "UNDER"],
+  OU35: ["OVER", "UNDER"],
+  OU45: ["OVER", "UNDER"],
 } as const satisfies Record<Market, readonly Selection[]>;
 
 /** One stored price (mirrors an OddsSnapshot row). */

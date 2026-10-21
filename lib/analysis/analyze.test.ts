@@ -26,7 +26,7 @@ function match(prices: PriceRow[], id = "m1", commenceTime = "2026-10-21T19:00:0
   return { id, competition: "soccer_epl", homeTeam: HOME, awayTeam: AWAY, commenceTime, prices };
 }
 
-const OPTS = { minBookmakers: 3, totalsLine: 2.5 };
+const OPTS = { minBookmakers: 3, totalsMarkets: ["OU25", "OU35", "OU45"] as const };
 
 describe("analyzeMatch", () => {
   it("produces 1X2, DC and OU25 when enough bookmakers", () => {
@@ -60,20 +60,55 @@ describe("analyzeMatch", () => {
     expect(analyzeMatch(match(prices), OPTS).skipped).toBe(true);
   });
 
-  it("ignores totals lines other than 2.5", () => {
-    const prices = ["a", "b", "c"].flatMap((k) => [...book(k, 2.0, 3.5, 4.0, [3.5, 3.0, 1.35])]);
+  it("uses the 3.5 line when bookmakers quote it instead of 2.5", () => {
+    const prices = ["a", "b", "c"].flatMap((k) => [...book(k, 2.0, 3.5, 4.0, [3.5, 1.9, 1.9])]);
     const r = analyzeMatch(match(prices), OPTS);
-    expect(r.markets.map((m) => m.market)).toEqual(["1X2", "DC"]);
+    expect(r.markets.map((m) => m.market)).toEqual(["1X2", "DC", "OU35"]);
+    expect(r.markets[2]!.selections[0]!.probability).toBeCloseTo(0.5, 12);
   });
 
-  it("keeps the 2.5 pair when a bookmaker lists several lines", () => {
+  it("ignores lines that are not configured (Asian lines, 1.5)", () => {
+    const prices = ["a", "b", "c"].flatMap((k) => [
+      ...book(k, 2.0, 3.5, 4.0, [3.0, 1.9, 1.9]),
+      ...book(k, 2, 3.5, 4, [1.5, 1.3, 3.4]).filter((r) => r.market === "totals"),
+    ]);
+    expect(analyzeMatch(match(prices), OPTS).markets.map((m) => m.market)).toEqual(["1X2", "DC"]);
+    const only25 = analyzeMatch(match(["a", "b", "c"].flatMap((k) => book(k, 2, 3.5, 4, [3.5, 1.9, 1.9]))), {
+      ...OPTS,
+      totalsMarkets: ["OU25"],
+    });
+    expect(only25.markets.map((m) => m.market)).toEqual(["1X2", "DC"]);
+  });
+
+  it("keeps one line per match: the one with more bookmakers, ties → the earlier configured line", () => {
+    const split = [
+      ...["a", "b", "c"].flatMap((k) => book(k, 2, 3.5, 4, [2.5, 1.9, 1.9])),
+      ...["d", "e", "f", "g"].flatMap((k) => book(k, 2, 3.5, 4, [3.5, 1.9, 1.9])),
+    ];
+    expect(
+      analyzeMatch(match(split), OPTS)
+        .markets.filter((m) => m.market.startsWith("OU"))
+        .map((m) => m.market),
+    ).toEqual(["OU35"]);
+    const tie = [
+      ...["a", "b", "c"].flatMap((k) => book(k, 2, 3.5, 4, [3.5, 1.9, 1.9])),
+      ...["d", "e", "f"].flatMap((k) => book(k, 2, 3.5, 4, [2.5, 1.9, 1.9])),
+    ];
+    expect(
+      analyzeMatch(match(tie), OPTS)
+        .markets.filter((m) => m.market.startsWith("OU"))
+        .map((m) => m.market),
+    ).toEqual(["OU25"]);
+  });
+
+  it("keeps the 2.5 pair when every bookmaker lists several lines", () => {
     const prices = ["a", "b", "c"].flatMap((k) => [
       ...book(k, 2.0, 3.5, 4.0, [2.5, 2.0, 1.8]),
       ...book(k, 2.0, 3.5, 4.0, [3.5, 3.0, 1.35]).filter((r) => r.market === "totals"),
     ]);
     const ou = analyzeMatch(match(prices), OPTS).markets.find((m) => m.market === "OU25")!;
     expect(ou.bookmakerCount).toBe(3);
-    expect(ou.selections[0]!.probability).toBeCloseTo((1 / 2.0) / (1 / 2.0 + 1 / 1.8), 12);
+    expect(ou.selections[0]!.probability).toBeCloseTo(1 / 2.0 / (1 / 2.0 + 1 / 1.8), 12);
   });
 
   it("skips OU25 alone when it has too few bookmakers", () => {
@@ -86,7 +121,7 @@ describe("analyzeMatch", () => {
   it("measures disagreement across bookmakers", () => {
     const prices = [...book("a", 2.0, 3.5, 4.0), ...book("b", 2.0, 3.5, 4.0), ...book("c", 1.6, 4.0, 5.5)];
     const home = analyzeMatch(match(prices), OPTS).markets[0]!.selections[0]!;
-    const fairC = (1 / 1.6) / (1 / 1.6 + 1 / 4.0 + 1 / 5.5);
+    const fairC = 1 / 1.6 / (1 / 1.6 + 1 / 4.0 + 1 / 5.5);
     expect(home.disagreement).toBeCloseTo(fairC - 0.482759, 5);
     expect(home.bestOdds?.price).toBe(2.0);
     expect(home.bestOdds?.bookmaker).toBe("a");

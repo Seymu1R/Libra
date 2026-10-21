@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GENERATOR, TEMPLATES, competitionName } from "@/lib/config";
 import { formatOdds, formatPercent, parseDecimal } from "@/lib/format";
-import { describeSelection, MARKET_LABEL, SELECTION_LABEL } from "@/lib/labels";
+import { describeSelection, MARKET_LABEL, selectionLabel } from "@/lib/labels";
 import type { Leg } from "@/lib/templates/build";
 import { generateCoupon, type GeneratedCoupon, type GeneratorGoal } from "@/lib/templates/generate";
 import { formatBaku } from "@/lib/time";
@@ -22,9 +22,13 @@ const MODES: { value: Mode; label: string; hint: string }[] = [
   {
     value: "target",
     label: "Hədəf",
-    hint: "Əmsal və ya ehtimal yazın — biri o birini avtomatik doldurur. Matç sayını da yaza bilərsiniz; boş qalsa sistem özü seçir. Kupon bu hədəfə ən yaxın qurulur.",
+    hint: "Əmsal və ya ehtimal yazın — biri o birini avtomatik doldurur. Matç sayını da yaza bilərsiniz; boş qalsa sistem özü seçir. Kupon bu hədəfə ən yaxın qurulur, risk seçimlər arasında bərabər paylanır.",
   },
-  { value: "range", label: "Aralıq", hint: "Kuponun ədalətli əmsalı ən azı bu qədər, ehtimalı ən azı bu qədər olmalıdır." },
+  {
+    value: "range",
+    label: "Aralıq",
+    hint: "Kuponun ədalətli əmsalı ən azı bu qədər, ehtimalı ən azı bu qədər olmalıdır. Risk seçimlər arasında bərabər paylanır.",
+  },
   {
     value: "real",
     label: "Real əmsal",
@@ -203,8 +207,8 @@ export function CouponGenerator({ syncId, legs, blockedMatchIds, maxDisagreement
                 </div>
                 <div className="flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-xs text-muted">
                   <span>
-                    {MARKET_LABEL[l.market]}: <strong>{SELECTION_LABEL[l.selection]}</strong> ·{" "}
-                    {describeSelection(l.selection, l.homeTeam, l.awayTeam)}
+                    {MARKET_LABEL[l.market]}: <strong>{selectionLabel(l.market, l.selection)}</strong> ·{" "}
+                    {describeSelection(l.market, l.selection, l.homeTeam, l.awayTeam)}
                     {l.bestOdds && (
                       <span className="text-highlight">
                         {" "}

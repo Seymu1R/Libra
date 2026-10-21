@@ -1,10 +1,11 @@
 import { h2hBooks, totalsBooks } from "./book-prices";
 import { bookFairProbabilities, consensusMarket, doubleChance } from "./consensus";
-import { MARKET_SELECTIONS, type MarketAnalysis, type MatchAnalysis, type MatchInput } from "./types";
+import { MARKET_SELECTIONS, TOTALS_LINES, type MarketAnalysis, type MatchAnalysis, type MatchInput, type TotalsMarket } from "./types";
 
 export interface AnalysisOptions {
   minBookmakers: number;
-  totalsLine: number;
+  /** In order of preference when two lines have the same bookmaker count. */
+  totalsMarkets: readonly TotalsMarket[];
 }
 
 export function analyzeMatch(input: MatchInput, opts: AnalysisOptions): MatchAnalysis {
@@ -20,22 +21,25 @@ export function analyzeMatch(input: MatchInput, opts: AnalysisOptions): MatchAna
     markets.push({ market: "1X2", bookmakerCount: h2hFair.length, selections: oneXTwo });
     markets.push({ market: "DC", bookmakerCount: h2hFair.length, selections: doubleChance(oneXTwo, h2hFair) });
 
-    const totals = totalsBooks(prices, opts.totalsLine);
-    const totalsFair = bookFairProbabilities(totals, MARKET_SELECTIONS.OU25);
-    if (totalsFair.length >= opts.minBookmakers) {
-      markets.push({
-        market: "OU25",
-        bookmakerCount: totalsFair.length,
-        selections: consensusMarket("OU25", totalsFair, MARKET_SELECTIONS.OU25, totals),
-      });
+    // One over/under line per match: the best-covered one (bookmakers rarely quote two lines for the same match).
+    let best: MarketAnalysis | null = null;
+    for (const market of opts.totalsMarkets) {
+      const totals = totalsBooks(prices, TOTALS_LINES[market]);
+      const totalsFair = bookFairProbabilities(totals, MARKET_SELECTIONS[market]);
+      if (totalsFair.length >= opts.minBookmakers && totalsFair.length > (best?.bookmakerCount ?? 0)) {
+        best = {
+          market,
+          bookmakerCount: totalsFair.length,
+          selections: consensusMarket(market, totalsFair, MARKET_SELECTIONS[market], totals),
+        };
+      }
     }
+    if (best) markets.push(best);
   }
 
   return { ...info, markets, bookmakerCount: h2hFair.length, skipped };
 }
 
 export function analyzeMatches(inputs: readonly MatchInput[], opts: AnalysisOptions): MatchAnalysis[] {
-  return inputs
-    .map((m) => analyzeMatch(m, opts))
-    .sort((a, b) => a.commenceTime.localeCompare(b.commenceTime) || a.id.localeCompare(b.id));
+  return inputs.map((m) => analyzeMatch(m, opts)).sort((a, b) => a.commenceTime.localeCompare(b.commenceTime) || a.id.localeCompare(b.id));
 }

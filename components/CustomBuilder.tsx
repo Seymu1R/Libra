@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { competitionName } from "@/lib/config";
 import { formatOdds, formatPercent, formatPoints } from "@/lib/format";
-import { MARKET_LABEL, SELECTION_LABEL } from "@/lib/labels";
+import { MARKET_LABEL, selectionLabel } from "@/lib/labels";
 import type { Leg } from "@/lib/templates/build";
 import { combine } from "@/lib/templates/combine";
 import { formatBaku } from "@/lib/time";
@@ -103,7 +103,7 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
                               : "border-border-strong hover:bg-surface-2"
                         }`}
                       >
-                        {SELECTION_LABEL[l.selection]} <span className="opacity-75">{formatPercent(l.probability)}</span>
+                        {selectionLabel(l.market, l.selection)} <span className="opacity-75">{formatPercent(l.probability)}</span>
                       </button>
                     );
                   })}
@@ -119,7 +119,7 @@ export function CustomBuilder({ syncId, legs, maxDisagreement }: Props) {
             {selectedLegs.map((l) => (
               <li key={legKey(l)} className="flex justify-between gap-2">
                 <span className="truncate">
-                  {l.homeTeam} — {l.awayTeam}: <strong>{SELECTION_LABEL[l.selection]}</strong>
+                  {l.homeTeam} — {l.awayTeam}: <strong>{selectionLabel(l.market, l.selection)}</strong>
                 </span>
                 <span className="tabular">{formatPercent(l.probability)}</span>
               </li>

@@ -25,7 +25,7 @@ It never places bets, has no in-play features, and is single-user.
 | FR-8 | Per-competition failure isolation + per-competition status recorded on the `Sync`. |
 | FR-9 | Every sync is a stored snapshot; analysis/filters never call the API. |
 | FR-10 | Per-bookmaker margin removal (normalize 1/odds per market). |
-| FR-11 | Markets: 1X2, Over/Under **2.5 only**, Double Chance **derived** from 1X2 consensus. |
+| FR-11 | Markets: 1X2, Over/Under **2.5 only**, Double Chance **derived** from 1X2 consensus. ➕ 2026-10-21 (Story 7.6): also 3.5 / 4.5, one line per match. |
 | FR-12 | Consensus = **median** of per-bookmaker fair probabilities, then renormalized. |
 | FR-13 | Disagreement = max − min of per-bookmaker fair probabilities. |
 | FR-14 | Skip below `MIN_BOOKMAKERS` (default 8). |
