@@ -89,4 +89,6 @@ export const GENERATOR = {
 
 export const DISPLAY = {
   timeZone: "Asia/Baku",
+  /** Asia/Baku has no DST since 2016 — day boundaries for date filters use this fixed offset. */
+  utcOffset: "+04:00",
 } as const;

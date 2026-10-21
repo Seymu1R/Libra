@@ -2,17 +2,17 @@
 
 Son yenilənmə: **2026-10-21**. Həll olunan məsələ `[x]` ilə işarələnir, tarix və qısa izah əlavə olunur (silinmir).
 
-## 🔴 Bloklayan — API açarı gəldikdən sonra
+## 🔴 Bloklayan — API açarı gəldikdən sonra (hamısı ✅ 2026-10-21)
 
-- [ ] **1. Turnir açarlarının real yoxlanması.** 8 açar rəsmi sənəddən götürülüb, hələ real API ilə yoxlanmayıb.
+- [x] **1. Turnir açarlarının real yoxlanması.** ✅ 2026-10-21: `npm run verify:sports` — 8 açarın hamısı ✔ aktiv. Köhnə izah: 8 açar rəsmi sənəddən götürülüb, hələ real API ilə yoxlanmayıb.
   `.env`-ə `ODDS_API_KEY` əlavə et, sonra `npm run verify:sports` işlət (pulsuzdur). ✘ çıxan turnir olsa, sahibinə bildir, açarı təxmin etmə.
   Bu skript `fixtures/sports.json`-u real cavabla əvəz edir; hazırkı fayl sənəd formatında əl ilə yazılıb.
-- [ ] **2. Ü/A 2.5 bazarının əhatəsi.** Sənəddə deyilir ki, `totals` "əsasən ABŞ idmanları və bukmekerləri üçündür".
+- [x] **2. Ü/A 2.5 bazarının əhatəsi.** ✅ 2026-10-21 (ilk real sinxron): Ü/A 2.5 analizi 97 matçın 60-ında (62%) mümkün oldu. Ü/A bukmeker sayı: median 10, max 17. 1X2-də matç başına 11–24 bukmeker var (median 20) və heç bir matç çıxarılmadı. Problem görünmür, sahibi istəsə Ü/A üçün ayrıca hədd qoymaq olar. Köhnə izah: Sənəddə deyilir ki, `totals` "əsasən ABŞ idmanları və bukmekerləri üçündür".
   İlk real sinxrondan sonra yoxla: Avropa futbolunda neçə matçda Ü/A 2.5 `MIN_BOOKMAKERS`-ə (8) çatır.
   Çox az matç çatırsa, sahibi ilə danış. Həll yolları: bu bazar üçün ayrıca hədd və ya başqa region.
-- [ ] **3. Heç-heçənin adı.** Kod 1X2 nəticələrini komanda adları və `"Draw"` kimi oxuyur, amma sənəddə bu ad dəqiq göstərilməyib.
+- [x] **3. Heç-heçənin adı.** ✅ 2026-10-21: real cavabda yeganə qeyri-komanda adı `"Draw"`-dur — kod düzgündür. Köhnə izah: Kod 1X2 nəticələrini komanda adları və `"Draw"` kimi oxuyur, amma sənəddə bu ad dəqiq göstərilməyib.
   İlk real cavabda yoxla. Ad başqadırsa, bütün matçlar "analiz edilmədi" kimi görünəcək. Düzəliş yeri: `lib/analysis/book-prices.ts` → `h2hBooks`.
-- [ ] **4. Kredit hesabı.** Gözlənilən xərc turnir başına 2 kreditdir. İlk real sinxrondan sonra `x-requests-last` header-i ilə təsdiqlə.
+- [x] **4. Kredit hesabı.** ✅ 2026-10-21: hər `odds` çağırışı `x-requests-last=2`, `events` və `sports` 0. 8 turnirlik tam sinxron = 16 kredit (500 → 484). Köhnə izah: Gözlənilən xərc turnir başına 2 kreditdir. İlk real sinxrondan sonra `x-requests-last` header-i ilə təsdiqlə.
   `ApiCallLog` cədvəlinə baxmaq üçün: `npm run db:studio`.
 
 ## 🟡 Sahibinin qərarı lazımdır

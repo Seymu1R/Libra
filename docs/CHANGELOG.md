@@ -2,6 +2,30 @@
 
 Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, nə edildi, harada). Köhnə qeydlər dəyişdirilmir.
 
+## 2026-10-21 — Sessiya 2: tarix filtri (Story 7.3)
+
+- Kuponlar səhifəsinin yuxarısına tarix filtri əlavə olundu (`components/DateFilter.tsx`, `lib/date-filter.ts`). Seçimlər:
+  **24 saat** (default) · **Bu həftə** (7 gün) · **Ümumi** · **Tarix** (bir gün) · **Aralıq**.
+- Filtr generatora, sistemin təkliflərinə və fərdi kupona eyni anda tətbiq olunur və linkdə saxlanır (`?filtr=...`).
+- Sistemin təklifləri seçilmiş pəncərə üçün canlı hesablanır, ona görə "Yenidən hesabla" düyməsi çıxarıldı.
+- **Yoxlama:** 77 test ✔ (+7) · tsc ✔ · eslint ✔. Real datada yoxlandı:
+  - 24 saat → 10 matç;
+  - 22.10 → 36 matç;
+  - 21–23.10 → 51 matç;
+  - həftə → 97 matç.
+
+## 2026-10-21 — Sessiya 2: real API
+
+- `.env`-ə `ODDS_API_KEY` yazıldı və `USE_MOCK_DATA=false` qoyuldu.
+- `npm run verify:sports` işlədildi: 8 açarın hamısı aktivdir. `fixtures/sports.json` real cavabla yeniləndi.
+- İlk real sinxron: 97 matç, 16 kredit (500 → 484), xəta yoxdur.
+- Açıq məsələlər #1–4 yoxlanıb bağlandı:
+  - heç-heçə `"Draw"` adlanır;
+  - Ü/A 2.5 matçların 62%-ində mövcuddur;
+  - `odds` çağırışı 2 kredit, `events` pulsuzdur.
+- Story 1-1 `review` statusuna keçdi.
+- Real datada Kuponlar və Matçlar səhifələri headless Chrome-da yoxlandı. Sistemin təklifləri: 78,2% / 69,6% / 50,3%, matç paylaşmırlar.
+
 ## 2026-10-21 — Sessiya 2: port
 
 - Port **4019**-a sabitləndi: `package.json`-da `dev` və `start` skriptləri. README, HANDOFF yeniləndi, açıq məsələ #11 bağlandı.

@@ -17,3 +17,5 @@ Record every decision or deviation from `ProjectDocs/original-brief.md` here (da
 | 2026-10-21 | Manual "Fərdi kupon" builder kept unchanged (not restricted by the repeat rule), but its saved coupons do block matches | Owner: keep it as the third module, rework later | owner |
 | 2026-10-21 | Saved coupons are listed across syncs (previously only the sync they were made in) | Needed for the repeat rule to make sense after a new sync | agent |
 | 2026-10-21 | Dev/start port fixed to 4019 (`-p 4019`) | Owner: never clash with other local projects (3000 is taken by rifah-api-gateway) | owner |
+| 2026-10-21 | Kuponlar date filter: 24 saat (default, now+24h) · Bu həftə (now+7 days) · Ümumi (all, as before) · Tarix (one Baku day) · Aralıq (Baku days); one filter on top for generator + suggestions + builder; kept in URL | Owner request and answers | owner |
+| 2026-10-21 | System suggestions are now computed live per filter on page load; "Yenidən hesabla" button removed (stored auto templates are still rebuilt on sync/save/delete) | Suggestions must follow the filter; the button had no visible effect anymore | agent |

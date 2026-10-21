@@ -47,6 +47,7 @@ Each epic = one phase from the brief. Each story gets a story file in
 - **7.2** Coupon generator at the top of Kuponlar: 3 modes (Hədəf — linked odds ⇄ probability; Aralıq — min odds + min
   probability; Real əmsal — min best-bookmaker odds + min probability), leg count chosen automatically, "Yadda saxla".
   Fərdi kupon builder stays unchanged (to be reworked later).
+- **7.3** Date filter on Kuponlar (24 saat default · Bu həftə · Ümumi · Tarix · Aralıq) for generator, suggestions and builder.
 
 ## Questions for the owner (block coding until answered)
 1. Do you already have an `ODDS_API_KEY` (free tier)? Story 1.1 needs one call to `/v4/sports`.

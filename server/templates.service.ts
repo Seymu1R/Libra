@@ -3,6 +3,7 @@ import { allLegs, allowedDespiteBlock, buildTemplates, type Leg } from "@/lib/te
 import { combine } from "@/lib/templates/combine";
 import { SAVED_TEMPLATE_TYPES, TEMPLATES, type SavedTemplateType } from "@/lib/config";
 import type { PrismaClient } from "@/generated/prisma/client";
+import type { MatchAnalysis } from "@/lib/analysis/types";
 import { analyzeSync } from "./analysis.service";
 
 /** Matches (not yet started) used by pending saved coupons — the repeat rule blocks them for new coupons. */
@@ -17,16 +18,21 @@ export async function blockedMatchIds(db: PrismaClient, now: Date = new Date()):
   return new Set(legs.map((l) => l.matchId));
 }
 
-/** Rebuilds the auto templates of a sync from stored data (no API call). Saved templates are kept. */
-export async function regenerateTemplates(db: PrismaClient, syncId: string, now: Date = new Date()) {
-  const [analyses, blocked] = await Promise.all([analyzeSync(db, syncId), blockedMatchIds(db, now)]);
-  const built = buildTemplates(analyses, TEMPLATES.rules, {
+/** Sabit / Balanslı / Riskli with the configured rules and the saved-coupon repeat rule. Pure — no DB writes. */
+export function buildAutoTemplates(analyses: readonly MatchAnalysis[], blocked: ReadonlySet<string>, now: Date) {
+  return buildTemplates(analyses, TEMPLATES.rules, {
     maxDisagreement: TEMPLATES.maxDisagreement,
     includeDoubleChance: TEMPLATES.includeDoubleChance,
     now,
     blocked,
     repeatAllowedAbove: TEMPLATES.repeatAllowedAbove,
   });
+}
+
+/** Rebuilds the auto templates of a sync from stored data (no API call). Saved templates are kept. */
+export async function regenerateTemplates(db: PrismaClient, syncId: string, now: Date = new Date()) {
+  const [analyses, blocked] = await Promise.all([analyzeSync(db, syncId), blockedMatchIds(db, now)]);
+  const built = buildAutoTemplates(analyses, blocked, now);
 
   await db.$transaction(async (tx) => {
     await tx.template.deleteMany({ where: { syncId, type: { notIn: [...SAVED_TEMPLATE_TYPES] } } });
