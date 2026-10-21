@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { SYNC_STATUS_LABEL } from "@/lib/labels";
 import { formatBaku } from "@/lib/time";
 import type { AppStatus } from "@/server/status.service";
+import { ExportMenu } from "./ExportMenu";
 
 interface Props {
   status: AppStatus;
@@ -138,6 +139,7 @@ export function SyncPanel({ status, competitions }: Props) {
         >
           {busy || status.running ? "Sinxron gedir…" : "Sinxron et"}
         </button>
+        <ExportMenu disabled={!status.lastSync} />
       </div>
       {cooling && (
         <p className="text-xs text-muted">

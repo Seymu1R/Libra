@@ -2,6 +2,23 @@
 
 Hər iş sessiyasının sonunda yeni qeyd **yuxarıya** əlavə olunur (tarix, nə edildi, harada). Köhnə qeydlər dəyişdirilmir.
 
+## 2026-10-21 — Sessiya 2: datanın ixracı (Story 7.8)
+
+- Yuxarıda "Sinxron et"-in yanına **Export** düyməsi əlavə olundu. Seçimlər:
+  - **Excel (.xlsx)** — bütün cədvəllər bir faylda, hər biri ayrı vərəqdə;
+  - **CSV** — hər cədvəl ayrı fayl.
+- Cədvəllər:
+  - Əmsallar — xam API datası, bütün sinxronlar;
+  - Ehtimallar — son sinxron;
+  - Matçlar;
+  - Sinxronlar;
+  - API çağırışları.
+- Vaxtlar Bakı vaxtı ilə yazılır. İxrac yalnız bazadan oxuyur: API-yə müraciət etmir, kredit xərcləmir.
+- Yeni asılılıq: `exceljs` 4.4.0.
+- **Yoxlama:** 89 test ✔ (+3) · tsc ✔ · eslint ✔.
+  - Real baza: xlsx 700 KB, 5 vərəq (15 087 əmsal, 752 ehtimal).
+  - Menyu gündüz, gecə və mobil görünüşdə yoxlandı.
+
 ## 2026-10-21 — Sessiya 2: riskin bərabər paylanması (Story 7.7)
 
 - Hədəf və Aralıq rejimlərində generator hədəfə uyğun kuponlar arasından seçimləri **ən bərabər** olanı götürür.

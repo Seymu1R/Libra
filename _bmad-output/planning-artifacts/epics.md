@@ -52,6 +52,7 @@ Each epic = one phase from the brief. Each story gets a story file in
 - **7.5** Generator "Hədəf" mode: optional match count (2–8) next to odds ⇄ probability; empty = automatic.
 - **7.6** Over/under 3.5 and 4.5 lines besides 2.5 (one line per match — the best-covered one).
 - **7.7** Generator spreads risk evenly across legs (Hədəf / Aralıq).
+- **7.8** Export button: all data as Excel (one sheet per table) or CSV (one file per table).
 
 ## Questions for the owner (block coding until answered)
 1. Do you already have an `ODDS_API_KEY` (free tier)? Story 1.1 needs one call to `/v4/sports`.

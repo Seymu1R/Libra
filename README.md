@@ -51,6 +51,7 @@ npm run dev                 # http://localhost:4019
 - **Matçlar** — turnirlər üzrə qruplaşdırılmış matçlar: 1X2, ikili şans (1X2-dən hesablanır), Üst/Alt 2.5 (bukmekerlər əsas xətti 3.5 və ya 4.5 verəndə — həmin xətt);
   hər seçim üçün konsensus ehtimalı, ədalətli əmsal, ən yaxşı əmsal + bukmeker, fikir ayrılığı (± faiz bəndi).
 - **Kuponlar** — Sabit / Balanslı / Riskli şablonları və öz seçimlərinizlə fərdi kupon.
+- **Export** (yuxarıda, "Sinxron et"-in yanında) — bazadakı bütün datanı Excel (.xlsx, hər cədvəl ayrı vərəqdə) və ya CSV kimi yükləyir. API-yə müraciət etmir.
   “Yenidən hesabla” saxlanmış məlumatdan hesablayır — API çağırılmır.
 
 ## Necə hesablanır

@@ -26,7 +26,7 @@ və yalnız baxış üçün kupon şablonları quran şəxsi, lokal veb tətbiq.
 | 4 — Kuponlar (`lib/templates`) | Deterministik greedy: Sabit / Balanslı / Riskli, matç başına 1 seçim, fərdi kupon (server ehtimalları yenidən hesablayır) |
 | 5 — UI | Header (sinxron, turnir seçimi, son sinxron, kredit, gözləmə), Matçlar, Kuponlar + fərdi kupon qurucusu, xəbərdarlıq, mobil görünüş. **2026-10-21:** semantik rəng tokenləri (`app/globals.css`), Gündüz / Gecə / Sistem keçidi, Fira şriftləri, SVG loqo |
 
-| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir (Hədəf-də "Matç sayı" ilə sabitlənə bilər), risk seçimlər arasında bərabər paylanır, "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq. Sistemin təklifləri də saxlanıla bilər; silmədən əvvəl təsdiq soruşulur |
+| 7 — Generator + təkrar qaydası | Kuponlar səhifəsinin yuxarısında kupon generatoru var: Hədəf / Aralıq / Real əmsal, seçim sayı avtomatikdir (Hədəf-də "Matç sayı" ilə sabitlənə bilər), risk seçimlər arasında bərabər paylanır. Header-də "Export" (Excel / CSV — bütün API datası), "Yadda saxla". Sabit/Balanslı/Riskli matç paylaşmır. Saxlanmış kuponların matçları təkrarlanmır (>70% seçimlər istisna). Yuxarıda tarix filtri var: 24 saat (default) / Bu həftə / Ümumi / Tarix / Aralıq. Sistemin təklifləri də saxlanıla bilər; silmədən əvvəl təsdiq soruşulur |
 
 Yoxlama: **70 test keçir**, `tsc` / `eslint` / `next build` təmiz, mock rejimdə tam axın brauzerdə yoxlanıb.
 
